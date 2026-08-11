@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | الصيانة</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="maintenance.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">TS</div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                <span>🏠</span>
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item">
+                <span>🛒</span>
+                <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item">
+                <span>📦</span>
+                <span>المنتجات والمخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item">
+                <span>🔄</span>
+                <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item active">
+                <span>🔧</span>
+                <span>الصيانة</span>
+            </a>
+
+            <div class="menu-title">
+                الإدارة المالية
+            </div>
+
+            <a href="accounts.html" class="menu-item">
+                <span>💰</span>
+                <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item">
+                <span>💸</span>
+                <span>المصروفات</span>
+            </a>
+
+            <div class="menu-title">
+                التقارير والإدارة
+            </div>
+
+            <a href="reports.html" class="menu-item">
+                <span>📊</span>
+                <span>التقارير</span>
+            </a>
+
+            <a href="users.html" class="menu-item">
+                <span>👥</span>
+                <span>المستخدمين</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutButton"
+                class="logout-button">
+
+                🚪
+                <span>تسجيل الخروج</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <header class="header">
+
+            <button
+                id="menuButton"
+                class="menu-button">
+
+                ☰
+
+            </button>
+
+            <div class="header-title">
+
+                <h1>الصيانة</h1>
+
+                <p>
+                    إدارة أجهزة العملاء وأوامر الصيانة
+                </p>
+
+            </div>
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <strong id="usernameDisplay">
+                        المستخدم
+                    </strong>
+
+                    <span id="roleDisplay">
+                        الموظف
+                    </span>
+
+                </div>
+
+                <div class="user-avatar">
+                    TS
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- ================= CONTENT ================= -->
+
+        <section class="maintenance-content">
+
+
+            <!-- ================= STATISTICS ================= -->
+
+            <div class="maintenance-stats">
+
+                <div class="maintenance-stat">
+
+                    <div class="stat-icon">
+                        🔧
+                    </div>
+
+                    <div>
+
+                        <span>
+                            إجمالي الطلبات
+                        </span>
+
+                        <strong id="totalRepairs">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="maintenance-stat">
+
+                    <div class="stat-icon">
+                        🕐
+                    </div>
+
+                    <div>
+
+                        <span>
+                            قيد الصيانة
+                        </span>
+
+                        <strong id="pendingRepairs">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="maintenance-stat">
+
+                    <div class="stat-icon">
+                        ✅
+                    </div>
+
+                    <div>
+
+                        <span>
+                            جاهزة
+                        </span>
+
+                        <strong id="readyRepairs">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="maintenance-stat">
+
+                    <div class="stat-icon">
+                        💰
+                    </div>
+
+                    <div>
+
+                        <span>
+                            إجمالي قيمة الصيانة
+                        </span>
+
+                        <strong id="repairRevenue">
+                            0.00 ج.م
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= FORM ================= -->
+
+            <div class="maintenance-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            🔧 أمر صيانة جديد
+                        </h2>
+
+                        <p>
+                            تسجيل جهاز جديد للصيانة
+                        </p>
+
+                    </div>
+
+                    <div
+                        id="repairNumber"
+                        class="repair-number">
+
+                        رقم الطلب: -
+
+                    </div>
+
+                </div>
+
+
+                <form
+                    id="maintenanceForm"
+                    class="maintenance-form">
+
+
+                    <div class="form-group">
+
+                        <label>
+                            اسم العميل *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="customerName"
+                            placeholder="اسم العميل"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            رقم الهاتف *
+                        </label>
+
+                        <input
+                            type="tel"
+                            id="customerPhone"
+                            placeholder="01xxxxxxxxx"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            نوع الجهاز *
+                        </label>
+
+                        <select
+                            id="deviceType"
+                            required>
+
+                            <option value="">
+                                اختر نوع الجهاز
+                            </option>
+
+                            <option>
+                                موبايل
+                            </option>
+
+                            <option>
+                                تابلت
+                            </option>
+
+                            <option>
+                                آيفون
+                            </option>
+
+                            <option>
+                                لابتوب
+                            </option>
+
+                            <option>
+                                ساعة ذكية
+                            </option>
+
+                            <option>
+                                سماعة
+                            </option>
+
+                            <option>
+                                أخرى
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            الموديل *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="deviceModel"
+                            placeholder="مثال: iPhone 13"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            IMEI / Serial
+                        </label>
+
+                        <input
+                            type="text"
+                            id="deviceSerial"
+                            placeholder="IMEI أو الرقم التسلسلي">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            الفني
+                        </label>
+
+                        <input
+                            type="text"
+                            id="technician"
+                            placeholder="اسم الفني">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            تاريخ التسليم المتوقع
+                        </label>
+
+                        <input
+                            type="date"
+                            id="expectedDate">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            تكلفة الصيانة
+                        </label>
+
+                        <input
+                            type="number"
+                            id="repairCost"
+                            min="0"
+                            step="0.01"
+                            value="0">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            المدفوع
+                        </label>
+
+                        <input
+                            type="number"
+                            id="repairPaid"
+                            min="0"
+                            step="0.01"
+                            value="0">
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label>
+                            الحالة
+                        </label>
+
+                        <select id="repairStatus">
+
+                            <option value="received">
+                                مستلمة
+                            </option>
+
+                            <option value="inspection">
+                                جاري الفحص
+                            </option>
+
+                            <option value="repairing">
+                                تحت الصيانة
+                            </option>
+
+                            <option value="ready">
+                                جاهزة
+                            </option>
+
+                            <option value="delivered">
+                                تم التسليم
+                            </option>
+
+                            <option value="cancelled">
+                                ملغاة
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group full">
+
+                        <label>
+                            العطل / المشكلة *
+                        </label>
+
+                        <input
+                            type="text"
+                            id="problem"
+                            placeholder="مثال: الشاشة مكسورة"
+                            required>
+
+                    </div>
+
+
+                    <div class="form-group full">
+
+                        <label>
+                            ملاحظات
+                        </label>
+
+                        <textarea
+                            id="notes"
+                            rows="4"
+                            placeholder="اكتب أي ملاحظات إضافية عن الجهاز..."></textarea>
+
+                    </div>
+
+
+                    <div class="form-actions">
+
+                        <button
+                            type="submit"
+                            class="primary-button">
+
+                            💾 حفظ أمر الصيانة
+
+                        </button>
+
+                        <button
+                            type="reset"
+                            id="resetForm"
+                            class="secondary-button">
+
+                            ↩️ إلغاء
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+            <!-- ================= SEARCH ================= -->
+
+            <div class="maintenance-panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            📋 أوامر الصيانة
+                        </h2>
+
+                        <p>
+                            جميع أجهزة العملاء المسجلة
+                        </p>
+
+                    </div>
+
+                    <div class="search-box">
+
+                        🔎
+
+                        <input
+                            type="search"
+                            id="repairSearch"
+                            placeholder="ابحث بالاسم أو الهاتف أو رقم الطلب أو IMEI">
+
+                    </div>
+
+                </div>
+
+
+                <div class="status-filters">
+
+                    <button
+                        class="status-filter active"
+                        data-status="all">
+
+                        الكل
+
+                    </button>
+
+                    <button
+                        class="status-filter"
+                        data-status="received">
+
+                        مستلمة
+
+                    </button>
+
+                    <button
+                        class="status-filter"
+                        data-status="inspection">
+
+                        جاري الفحص
+
+                    </button>
+
+                    <button
+                        class="status-filter"
+                        data-status="repairing">
+
+                        تحت الصيانة
+
+                    </button>
+
+                    <button
+                        class="status-filter"
+                        data-status="ready">
+
+                        جاهزة
+
+                    </button>
+
+                    <button
+                        class="status-filter"
+                        data-status="delivered">
+
+                        تم التسليم
+
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    رقم الطلب
+                                </th>
+
+                                <th>
+                                    العميل
+                                </th>
+
+                                <th>
+                                    الجهاز
+                                </th>
+
+                                <th>
+                                    العطل
+                                </th>
+
+                                <th>
+                                    التكلفة
+                                </th>
+
+                                <th>
+                                    المدفوع
+                                </th>
+
+                                <th>
+                                    المتبقي
+                                </th>
+
+                                <th>
+                                    الحالة
+                                </th>
+
+                                <th>
+                                    التاريخ
+                                </th>
+
+                                <th>
+                                    الإجراءات
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="maintenanceTableBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ================= MODAL ================= -->
+
+<div
+    id="repairModal"
+    class="modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+
+            <h2>
+                تفاصيل الصيانة
+            </h2>
+
+            <button
+                id="closeModal"
+                class="modal-close">
+
+                ×
+
+            </button>
+
+        </div>
+
+        <div
+            id="repairDetails"
+            class="repair-details">
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="maintenanceToast"
+    class="maintenance-toast">
+
+</div>
+
+
+<script src="auth.js"></script>
+<script src="maintenance.js"></script>
+
+</body>
+
+</html>
