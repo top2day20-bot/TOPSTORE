@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | المرتجعات</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="returns.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                TS
+            </div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+
+        </div>
+
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                <span>🏠</span>
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item">
+                <span>🛒</span>
+                <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item">
+                <span>📦</span>
+                <span>المنتجات والمخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item active">
+                <span>🔄</span>
+                <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item">
+                <span>🔧</span>
+                <span>الصيانة</span>
+            </a>
+
+
+            <div class="menu-title">
+                الإدارة المالية
+            </div>
+
+            <a href="accounts.html" class="menu-item">
+                <span>💰</span>
+                <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item">
+                <span>💸</span>
+                <span>المصروفات</span>
+            </a>
+
+
+            <div class="menu-title">
+                التقارير والإدارة
+            </div>
+
+            <a href="reports.html" class="menu-item">
+                <span>📊</span>
+                <span>التقارير</span>
+            </a>
+
+            <a href="users.html" class="menu-item">
+                <span>👥</span>
+                <span>المستخدمين</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutButton"
+                class="logout-button">
+
+                🚪
+                <span>تسجيل الخروج</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main -->
+    <main class="main">
+
+        <header class="header">
+
+            <button
+                id="menuButton"
+                class="menu-button">
+
+                ☰
+
+            </button>
+
+
+            <div class="header-title">
+
+                <h1>
+                    المرتجعات
+                </h1>
+
+                <p>
+                    إدارة مرتجعات المبيعات وإعادة المنتجات للمخزن
+                </p>
+
+            </div>
+
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <strong id="usernameDisplay">
+                        admin
+                    </strong>
+
+                    <span>
+                        المدير
+                    </span>
+
+                </div>
+
+
+                <div class="user-avatar">
+                    A
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="returns-content">
+
+
+            <!-- Search Invoice -->
+
+            <div class="return-search-card">
+
+                <div class="search-title">
+
+                    <div class="search-icon">
+                        🔎
+                    </div>
+
+                    <div>
+
+                        <h2>
+                            البحث عن فاتورة
+                        </h2>
+
+                        <p>
+                            أدخل رقم الفاتورة لعرض المنتجات
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="invoice-search">
+
+                    <input
+                        id="invoiceSearch"
+                        type="text"
+                        placeholder="رقم الفاتورة">
+
+                    <button
+                        id="searchInvoiceButton">
+
+                        🔎 بحث
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Invoice Info -->
+
+            <div
+                id="invoiceInfo"
+                class="invoice-info-card"
+                style="display:none;">
+
+                <div>
+
+                    <span>
+                        رقم الفاتورة
+                    </span>
+
+                    <strong id="invoiceNumber">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        التاريخ
+                    </span>
+
+                    <strong id="invoiceDate">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        العميل
+                    </span>
+
+                    <strong id="invoiceCustomer">
+                        -
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>
+                        إجمالي الفاتورة
+                    </span>
+
+                    <strong id="invoiceTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- Products -->
+
+            <div
+                id="returnPanel"
+                class="return-panel"
+                style="display:none;">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            منتجات الفاتورة
+                        </h2>
+
+                        <p>
+                            حدد المنتجات والكميات المراد إرجاعها
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table class="return-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    المنتج
+                                </th>
+
+                                <th>
+                                    الباركود
+                                </th>
+
+                                <th>
+                                    سعر البيع
+                                </th>
+
+                                <th>
+                                    المباع
+                                </th>
+
+                                <th>
+                                    تم إرجاعه
+                                </th>
+
+                                <th>
+                                    الكمية المرتجعة
+                                </th>
+
+                                <th>
+                                    قيمة المرتجع
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="returnProductsBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+
+                <!-- Return Summary -->
+
+                <div class="return-summary">
+
+                    <div class="summary-box">
+
+                        <span>
+                            عدد المنتجات
+                        </span>
+
+                        <strong id="returnItemsCount">
+                            0
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-box">
+
+                        <span>
+                            إجمالي المرتجع
+                        </span>
+
+                        <strong id="returnTotal">
+                            0.00 ج.م
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Reason -->
+
+                <div class="return-reason">
+
+                    <label>
+                        سبب المرتجع
+                    </label>
+
+                    <textarea
+                        id="returnReason"
+                        placeholder="اكتب سبب المرتجع..."></textarea>
+
+                </div>
+
+
+                <div class="return-actions">
+
+                    <button
+                        id="cancelReturn"
+                        class="cancel-return">
+
+                        إلغاء
+
+                    </button>
+
+
+                    <button
+                        id="confirmReturn"
+                        class="confirm-return">
+
+                        🔄 تأكيد المرتجع
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- Empty -->
+
+            <div
+                id="emptyReturns"
+                class="empty-returns">
+
+                <div>
+                    🔄
+                </div>
+
+                <h2>
+                    لا توجد فاتورة محددة
+                </h2>
+
+                <p>
+                    ابحث عن رقم الفاتورة لبدء عملية المرتجع
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<div
+    id="toast"
+    class="return-toast">
+</div>
+
+
+<script src="dashboard.js"></script>
+<script src="returns.js"></script>
+
+</body>
+</html>
