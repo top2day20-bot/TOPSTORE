@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | المصروفات</title>
+
+    <link rel="stylesheet" href="expenses.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">TS</div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                🏠 <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item">
+                🛒 <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item">
+                📦 <span>المخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item">
+                🔄 <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item">
+                🔧 <span>الصيانة</span>
+            </a>
+
+            <a href="accounts.html" class="menu-item">
+                💰 <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item active">
+                💸 <span>المصروفات</span>
+            </a>
+
+            <a href="reports.html" class="menu-item">
+                📊 <span>التقارير</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutButton"
+                class="logout-button">
+
+                🚪 تسجيل الخروج
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN -->
+    <main class="main">
+
+        <header class="header">
+
+            <div>
+
+                <h1>المصروفات</h1>
+
+                <p>
+                    تسجيل ومتابعة مصروفات المحل
+                </p>
+
+            </div>
+
+            <div class="user-box">
+
+                <strong id="usernameDisplay">
+                    المستخدم
+                </strong>
+
+                <span id="roleDisplay">
+                    -
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+
+            <!-- DATE -->
+            <div class="date-panel">
+
+                <div>
+
+                    <label>
+                        تاريخ المصروفات
+                    </label>
+
+                    <input
+                        type="date"
+                        id="expenseDate">
+
+                </div>
+
+                <button
+                    id="todayButton"
+                    class="today-button">
+
+                    📅 اليوم
+
+                </button>
+
+            </div>
+
+
+            <!-- SUMMARY -->
+            <div class="summary-grid">
+
+                <div class="summary-card">
+
+                    <span>
+                        💸 مصروفات اليوم
+                    </span>
+
+                    <strong id="todayTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <span>
+                        📋 عدد المصروفات
+                    </span>
+
+                    <strong id="todayCount">
+                        0
+                    </strong>
+
+                </div>
+
+                <div class="summary-card">
+
+                    <span>
+                        📊 متوسط المصروف
+                    </span>
+
+                    <strong id="averageExpense">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTIONS -->
+            <div class="actions-panel">
+
+                <button
+                    id="addExpenseButton"
+                    class="primary-button">
+
+                    ➕ إضافة مصروف
+
+                </button>
+
+            </div>
+
+
+            <!-- TABLE -->
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            سجل المصروفات
+                        </h2>
+
+                        <p>
+                            المصروفات المسجلة في اليوم المحدد
+                        </p>
+
+                    </div>
+
+                    <input
+                        type="search"
+                        id="expenseSearch"
+                        placeholder="🔎 بحث عن مصروف...">
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>الوقت</th>
+                                <th>النوع</th>
+                                <th>البيان</th>
+                                <th>المبلغ</th>
+                                <th>الموظف</th>
+                                <th>الإجراء</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="expensesBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ADD EXPENSE MODAL -->
+
+<div
+    id="expenseModal"
+    class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>
+                ➕ إضافة مصروف
+            </h2>
+
+            <button
+                id="closeExpenseModal"
+                class="close-button">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <form id="expenseForm">
+
+
+            <div class="form-group">
+
+                <label>
+                    نوع المصروف
+                </label>
+
+                <select id="expenseType">
+
+                    <option value="كهرباء">
+                        كهرباء
+                    </option>
+
+                    <option value="مياه">
+                        مياه
+                    </option>
+
+                    <option value="إيجار">
+                        إيجار
+                    </option>
+
+                    <option value="رواتب">
+                        رواتب
+                    </option>
+
+                    <option value="مواصلات">
+                        مواصلات
+                    </option>
+
+                    <option value="شراء">
+                        شراء
+                    </option>
+
+                    <option value="صيانة محل">
+                        صيانة محل
+                    </option>
+
+                    <option value="أخرى">
+                        أخرى
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    البيان
+                </label>
+
+                <input
+                    type="text"
+                    id="expenseDescription"
+                    placeholder="مثال: دفع فاتورة الكهرباء"
+                    required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    المبلغ
+                </label>
+
+                <div class="amount-input">
+
+                    <input
+                        type="number"
+                        id="expenseAmount"
+                        min="0.01"
+                        step="0.01"
+                        placeholder="0.00"
+                        required>
+
+                    <span>
+                        ج.م
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button">
+
+                    💾 حفظ المصروف
+
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelExpense"
+                    class="cancel-button">
+
+                    إلغاء
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div
+    id="expenseToast"
+    class="toast">
+</div>
+
+
+<script src="expenses.js"></script>
+
+</body>
+
+</html>
