@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | الحسابات</title>
+
+    <link rel="stylesheet" href="accounts.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- ================= SIDEBAR ================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">TS</div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+        </div>
+
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                🏠
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item">
+                🛒
+                <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item">
+                📦
+                <span>المخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item">
+                🔄
+                <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item">
+                🔧
+                <span>الصيانة</span>
+            </a>
+
+            <a href="accounts.html" class="menu-item active">
+                💰
+                <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item">
+                💸
+                <span>المصروفات</span>
+            </a>
+
+            <a href="reports.html" class="menu-item">
+                📊
+                <span>التقارير</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutButton"
+                class="logout-button">
+
+                🚪
+                تسجيل الخروج
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="main">
+
+        <header class="header">
+
+            <div>
+
+                <h1>
+                    الحسابات
+                </h1>
+
+                <p>
+                    متابعة حسابات المحل اليومية
+                </p>
+
+            </div>
+
+
+            <div class="user-box">
+
+                <strong id="usernameDisplay">
+                    المستخدم
+                </strong>
+
+                <span id="roleDisplay">
+                    -
+                </span>
+
+            </div>
+
+        </header>
+
+
+        <section class="content">
+
+
+            <!-- ================= DATE ================= -->
+
+            <div class="date-panel">
+
+                <div>
+
+                    <label>
+                        تاريخ الحساب
+                    </label>
+
+                    <input
+                        type="date"
+                        id="accountDate">
+
+                </div>
+
+
+                <button
+                    id="todayButton"
+                    class="today-button">
+
+                    📅 اليوم
+
+                </button>
+
+            </div>
+
+
+            <!-- ================= STATS ================= -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card sales">
+
+                    <span>
+                        🛒 المبيعات
+                    </span>
+
+                    <strong id="salesTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card paid">
+
+                    <span>
+                        💵 المقبوض
+                    </span>
+
+                    <strong id="paidTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card remaining">
+
+                    <span>
+                        🧾 المتبقي
+                    </span>
+
+                    <strong id="remainingTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card expenses">
+
+                    <span>
+                        💸 المصروفات
+                    </span>
+
+                    <strong id="expensesTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card maintenance">
+
+                    <span>
+                        🔧 الصيانة
+                    </span>
+
+                    <strong id="maintenanceTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card net">
+
+                    <span>
+                        📊 صافي اليوم
+                    </span>
+
+                    <strong id="netTotal">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+
+            </div>
+
+
+            <!-- ================= ACTIONS ================= -->
+
+            <div class="actions-panel">
+
+                <button
+                    id="addTransaction"
+                    class="primary-button">
+
+                    ➕ إضافة حركة مالية
+
+                </button>
+
+
+                <button
+                    id="settleDay"
+                    class="settle-button">
+
+                    🔒 تسوية اليوم
+
+                </button>
+
+            </div>
+
+
+            <!-- ================= TRANSACTIONS ================= -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            الحركات المالية
+                        </h2>
+
+                        <p>
+                            سجل الحركات الخاصة باليوم المحدد
+                        </p>
+
+                    </div>
+
+
+                    <input
+                        type="search"
+                        id="transactionSearch"
+                        placeholder="🔎 بحث...">
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    الوقت
+                                </th>
+
+                                <th>
+                                    النوع
+                                </th>
+
+                                <th>
+                                    البيان
+                                </th>
+
+                                <th>
+                                    المبلغ
+                                </th>
+
+                                <th>
+                                    الموظف
+                                </th>
+
+                                <th>
+                                    الإجراء
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="transactionsBody">
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- ================= TRANSACTION MODAL ================= -->
+
+<div
+    id="transactionModal"
+    class="modal">
+
+    <div class="modal-box">
+
+        <div class="modal-header">
+
+            <h2>
+                إضافة حركة مالية
+            </h2>
+
+            <button
+                id="closeTransactionModal"
+                class="close-button">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <form id="transactionForm">
+
+
+            <div class="form-group">
+
+                <label>
+                    نوع الحركة
+                </label>
+
+                <select id="transactionType">
+
+                    <option value="income">
+                        إيراد
+                    </option>
+
+                    <option value="expense">
+                        مصروف
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    البيان
+                </label>
+
+                <input
+                    type="text"
+                    id="transactionDescription"
+                    placeholder="مثال: بيع شاشة">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>
+                    المبلغ
+                </label>
+
+                <input
+                    type="number"
+                    id="transactionAmount"
+                    min="0"
+                    step="0.01"
+                    required>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="submit"
+                    class="primary-button">
+
+                    💾 حفظ
+
+                </button>
+
+                <button
+                    type="button"
+                    id="cancelTransaction"
+                    class="cancel-button">
+
+                    إلغاء
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- ================= SETTLEMENT MODAL ================= -->
+
+<div
+    id="settlementModal"
+    class="modal">
+
+    <div class="modal-box settlement-box">
+
+        <div class="modal-header">
+
+            <h2>
+                🔒 تسوية حساب اليوم
+            </h2>
+
+            <button
+                id="closeSettlementModal"
+                class="close-button">
+
+                ×
+
+            </button>
+
+        </div>
+
+
+        <div class="settlement-summary">
+
+            <div>
+                المبيعات:
+                <strong id="settleSales">
+                    0.00
+                </strong>
+            </div>
+
+            <div>
+                المقبوض:
+                <strong id="settlePaid">
+                    0.00
+                </strong>
+            </div>
+
+            <div>
+                المصروفات:
+                <strong id="settleExpenses">
+                    0.00
+                </strong>
+            </div>
+
+            <div>
+                صافي الحساب:
+                <strong id="settleNet">
+                    0.00
+                </strong>
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label>
+                كلمة مرور التسوية
+            </label>
+
+            <input
+                type="password"
+                id="settlementPassword"
+                placeholder="كلمة المرور">
+
+        </div>
+
+
+        <button
+            id="confirmSettlement"
+            class="settle-button full-button">
+
+            تأكيد التسوية
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+    id="accountToast"
+    class="toast">
+
+</div>
+
+
+<script src="accounts.js"></script>
+
+</body>
+
+</html>
