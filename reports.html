@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | التقارير</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="reports.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =========================
+         SIDEBAR
+         ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                TS
+            </div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+
+        </div>
+
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                <span>🏠</span>
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item">
+                <span>🛒</span>
+                <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item">
+                <span>📦</span>
+                <span>المنتجات والمخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item">
+                <span>🔄</span>
+                <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item">
+                <span>🔧</span>
+                <span>الصيانة</span>
+            </a>
+
+
+            <div class="menu-title">
+                الإدارة المالية
+            </div>
+
+            <a href="accounts.html" class="menu-item">
+                <span>💰</span>
+                <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item">
+                <span>💸</span>
+                <span>المصروفات</span>
+            </a>
+
+
+            <div class="menu-title">
+                التقارير والإدارة
+            </div>
+
+            <a
+                href="reports.html"
+                class="menu-item active">
+
+                <span>📊</span>
+                <span>التقارير</span>
+
+            </a>
+
+            <a href="users.html" class="menu-item">
+                <span>👥</span>
+                <span>المستخدمين</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                id="logoutButton"
+                class="logout-button">
+
+                🚪
+                <span>تسجيل الخروج</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- =========================
+         MAIN
+         ========================= -->
+
+    <main class="main">
+
+
+        <!-- HEADER -->
+
+        <header class="header">
+
+            <button
+                id="menuButton"
+                class="menu-button">
+
+                ☰
+
+            </button>
+
+
+            <div class="header-title">
+
+                <h1>
+                    التقارير
+                </h1>
+
+                <p>
+                    متابعة أداء المبيعات والمخزون
+                </p>
+
+            </div>
+
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <strong id="usernameDisplay">
+                        admin
+                    </strong>
+
+                    <span>
+                        المدير
+                    </span>
+
+                </div>
+
+
+                <div class="user-avatar">
+                    A
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =========================
+             CONTENT
+             ========================= -->
+
+        <section class="reports-content">
+
+
+            <!-- FILTER -->
+
+            <div class="report-toolbar">
+
+                <div>
+
+                    <h2>
+                        ملخص التقارير
+                    </h2>
+
+                    <p>
+                        اختر الفترة الزمنية لعرض النتائج
+                    </p>
+
+                </div>
+
+
+                <div class="report-filters">
+
+                    <button
+                        class="filter-btn active"
+                        data-period="today">
+
+                        اليوم
+
+                    </button>
+
+                    <button
+                        class="filter-btn"
+                        data-period="week">
+
+                        هذا الأسبوع
+
+                    </button>
+
+                    <button
+                        class="filter-btn"
+                        data-period="month">
+
+                        هذا الشهر
+
+                    </button>
+
+                    <button
+                        class="filter-btn"
+                        data-period="all">
+
+                        الكل
+
+                    </button>
+
+                    <button
+                        id="refreshReports"
+                        class="refresh-btn">
+
+                        🔄 تحديث
+
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 STAT CARDS
+                 ========================= -->
+
+            <div class="stats-grid">
+
+
+                <div class="stat-card sales-card">
+
+                    <div class="stat-icon">
+                        💰
+                    </div>
+
+                    <div class="stat-data">
+
+                        <span>
+                            إجمالي المبيعات
+                        </span>
+
+                        <strong id="totalSales">
+                            0.00 ج.م
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card returns-card">
+
+                    <div class="stat-icon">
+                        🔄
+                    </div>
+
+                    <div class="stat-data">
+
+                        <span>
+                            إجمالي المرتجعات
+                        </span>
+
+                        <strong id="totalReturns">
+                            0.00 ج.م
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card net-card">
+
+                    <div class="stat-icon">
+                        📈
+                    </div>
+
+                    <div class="stat-data">
+
+                        <span>
+                            صافي المبيعات
+                        </span>
+
+                        <strong id="netSales">
+                            0.00 ج.م
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="stat-card invoices-card">
+
+                    <div class="stat-icon">
+                        🧾
+                    </div>
+
+                    <div class="stat-data">
+
+                        <span>
+                            عدد الفواتير
+                        </span>
+
+                        <strong id="invoiceCount">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 SECOND STATS
+                 ========================= -->
+
+            <div class="small-stats-grid">
+
+
+                <div class="small-stat">
+
+                    <span>
+                        عدد المنتجات
+                    </span>
+
+                    <strong id="productsCount">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="small-stat warning">
+
+                    <span>
+                        مخزون منخفض
+                    </span>
+
+                    <strong id="lowStockCount">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="small-stat danger">
+
+                    <span>
+                        نفد من المخزون
+                    </span>
+
+                    <strong id="outOfStockCount">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="small-stat">
+
+                    <span>
+                        متوسط الفاتورة
+                    </span>
+
+                    <strong id="averageInvoice">
+                        0.00 ج.م
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 TABLES
+                 ========================= -->
+
+            <div class="reports-columns">
+
+
+                <!-- TOP PRODUCTS -->
+
+                <div class="report-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <h2>
+                                🏆 الأكثر مبيعًا
+                            </h2>
+
+                            <p>
+                                المنتجات حسب الكمية المباعة
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-scroll">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        #
+                                    </th>
+
+                                    <th>
+                                        المنتج
+                                    </th>
+
+                                    <th>
+                                        الكمية
+                                    </th>
+
+                                    <th>
+                                        المبيعات
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="topProductsBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <!-- LATEST SALES -->
+
+                <div class="report-panel">
+
+                    <div class="panel-heading">
+
+                        <div>
+
+                            <h2>
+                                🧾 آخر الفواتير
+                            </h2>
+
+                            <p>
+                                أحدث عمليات البيع
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="table-scroll">
+
+                        <table>
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        الفاتورة
+                                    </th>
+
+                                    <th>
+                                        العميل
+                                    </th>
+
+                                    <th>
+                                        الإجمالي
+                                    </th>
+
+                                    <th>
+                                        التاريخ
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+
+                            <tbody id="latestSalesBody">
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 STOCK ALERTS
+                 ========================= -->
+
+            <div class="report-panel stock-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            📦 حالة المخزون
+                        </h2>
+
+                        <p>
+                            المنتجات التي تحتاج إلى متابعة
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="table-scroll">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    المنتج
+                                </th>
+
+                                <th>
+                                    الباركود
+                                </th>
+
+                                <th>
+                                    الكمية
+                                </th>
+
+                                <th>
+                                    الحد الأدنى
+                                </th>
+
+                                <th>
+                                    الحالة
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="stockAlertsBody">
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 PAYMENT METHODS
+                 ========================= -->
+
+            <div class="report-panel payment-panel">
+
+                <div class="panel-heading">
+
+                    <div>
+
+                        <h2>
+                            💳 طرق الدفع
+                        </h2>
+
+                        <p>
+                            توزيع المبيعات حسب طريقة الدفع
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="paymentMethods"
+                    class="payment-methods">
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- Toast -->
+
+<div
+    id="reportToast"
+    class="report-toast">
+</div>
+
+
+<script src="dashboard.js"></script>
+<script src="reports.js"></script>
+
+</body>
+
+</html>

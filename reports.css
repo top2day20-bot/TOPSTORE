@@ -1,0 +1,719 @@
+/* =========================================
+   TOP STORE
+   REPORTS CSS
+   ========================================= */
+
+.reports-content {
+
+    padding: 25px;
+}
+
+
+/* =========================================
+   TOOLBAR
+   ========================================= */
+
+.report-toolbar {
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
+}
+
+.report-toolbar h2 {
+
+    font-size: 18px;
+
+    margin-bottom: 5px;
+}
+
+.report-toolbar p {
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+
+/* =========================================
+   FILTERS
+   ========================================= */
+
+.report-filters {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    flex-wrap: wrap;
+}
+
+.filter-btn,
+.refresh-btn {
+
+    height: 38px;
+
+    padding: 0 14px;
+
+    border-radius: 8px;
+
+    border: 1px solid var(--border);
+
+    background: white;
+
+    font-family: inherit;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+}
+
+.filter-btn:hover {
+
+    border-color: var(--primary);
+}
+
+.filter-btn.active {
+
+    background: var(--primary);
+
+    color: white;
+
+    border-color: var(--primary);
+}
+
+.refresh-btn {
+
+    background: #f8fafc;
+}
+
+
+/* =========================================
+   STAT CARDS
+   ========================================= */
+
+.stats-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 15px;
+}
+
+.stat-card {
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    padding: 20px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    min-height: 110px;
+}
+
+.stat-icon {
+
+    width: 52px;
+
+    height: 52px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 23px;
+
+    flex-shrink: 0;
+}
+
+.sales-card .stat-icon {
+
+    background: #dcfce7;
+}
+
+.returns-card .stat-icon {
+
+    background: #fee2e2;
+}
+
+.net-card .stat-icon {
+
+    background: #dbeafe;
+}
+
+.invoices-card .stat-icon {
+
+    background: #f3e8ff;
+}
+
+.stat-data span {
+
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 12px;
+
+    margin-bottom: 7px;
+}
+
+.stat-data strong {
+
+    font-size: 20px;
+
+    font-weight: 900;
+}
+
+
+/* =========================================
+   SMALL STATS
+   ========================================= */
+
+.small-stats-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+}
+
+.small-stat {
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 13px;
+
+    padding: 16px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+}
+
+.small-stat span {
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.small-stat strong {
+
+    font-size: 18px;
+}
+
+.small-stat.warning strong {
+
+    color: #d97706;
+}
+
+.small-stat.danger strong {
+
+    color: #dc2626;
+}
+
+
+/* =========================================
+   COLUMNS
+   ========================================= */
+
+.reports-columns {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 18px;
+
+    margin-bottom: 18px;
+}
+
+
+/* =========================================
+   PANELS
+   ========================================= */
+
+.report-panel {
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    margin-bottom: 18px;
+}
+
+.reports-columns .report-panel {
+
+    margin-bottom: 0;
+}
+
+.panel-heading {
+
+    padding: 18px 20px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+}
+
+.panel-heading h2 {
+
+    font-size: 16px;
+
+    margin-bottom: 5px;
+}
+
+.panel-heading p {
+
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+
+/* =========================================
+   TABLE
+   ========================================= */
+
+.table-scroll {
+
+    overflow-x: auto;
+}
+
+.report-panel table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 500px;
+}
+
+.report-panel th {
+
+    background: #f8fafc;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    padding: 12px 10px;
+
+    border-bottom:
+        1px solid var(--border);
+
+    white-space: nowrap;
+}
+
+.report-panel td {
+
+    padding: 12px 10px;
+
+    font-size: 12px;
+
+    text-align: center;
+
+    border-bottom:
+        1px solid #f1f5f9;
+}
+
+.report-panel tbody tr:last-child td {
+
+    border-bottom: none;
+}
+
+
+/* =========================================
+   PRODUCT NAME
+   ========================================= */
+
+.product-report-name {
+
+    text-align: right !important;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   RANK
+   ========================================= */
+
+.rank {
+
+    width: 28px;
+
+    height: 28px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #f1f5f9;
+
+    font-weight: 800;
+}
+
+.rank.first {
+
+    background: #fef3c7;
+
+    color: #92400e;
+}
+
+.rank.second {
+
+    background: #e2e8f0;
+
+    color: #334155;
+}
+
+.rank.third {
+
+    background: #fed7aa;
+
+    color: #9a3412;
+}
+
+
+/* =========================================
+   STOCK
+   ========================================= */
+
+.stock-panel {
+
+    margin-bottom: 18px;
+}
+
+.stock-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 5px 9px;
+
+    border-radius: 20px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+}
+
+.stock-status.out {
+
+    background: #fee2e2;
+
+    color: #b91c1c;
+}
+
+.stock-status.low {
+
+    background: #fef3c7;
+
+    color: #92400e;
+}
+
+.stock-status.good {
+
+    background: #dcfce7;
+
+    color: #166534;
+}
+
+
+/* =========================================
+   PAYMENT METHODS
+   ========================================= */
+
+.payment-panel {
+
+    margin-bottom: 0;
+}
+
+.payment-methods {
+
+    padding: 20px;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+}
+
+.payment-box {
+
+    border: 1px solid var(--border);
+
+    border-radius: 12px;
+
+    padding: 16px;
+
+    background: #f8fafc;
+}
+
+.payment-box .payment-title {
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    margin-bottom: 7px;
+}
+
+.payment-box strong {
+
+    display: block;
+
+    font-size: 18px;
+
+    margin-bottom: 5px;
+}
+
+.payment-box small {
+
+    color: #64748b;
+
+    font-size: 10px;
+}
+
+
+/* =========================================
+   EMPTY TABLE
+   ========================================= */
+
+.empty-table {
+
+    padding: 30px !important;
+
+    text-align: center !important;
+
+    color: #94a3b8;
+
+    font-size: 12px !important;
+}
+
+
+/* =========================================
+   TOAST
+   ========================================= */
+
+.report-toast {
+
+    position: fixed;
+
+    left: 20px;
+
+    bottom: 20px;
+
+    background: #0f172a;
+
+    color: white;
+
+    padding: 13px 18px;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+
+    opacity: 0;
+
+    transform:
+        translateY(15px);
+
+    pointer-events: none;
+
+    transition: .25s;
+
+    z-index: 99999;
+}
+
+.report-toast.show {
+
+    opacity: 1;
+
+    transform:
+        translateY(0);
+}
+
+.report-toast.success {
+
+    background: #16a34a;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 1100px) {
+
+    .stats-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .small-stats-grid {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .reports-columns {
+
+        grid-template-columns: 1fr;
+    }
+
+}
+
+
+@media (max-width: 700px) {
+
+    .reports-content {
+
+        padding: 14px;
+    }
+
+    .report-toolbar {
+
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .report-filters {
+
+        width: 100%;
+    }
+
+    .filter-btn,
+    .refresh-btn {
+
+        flex: 1;
+
+        min-width: 70px;
+    }
+
+    .stats-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .small-stats-grid {
+
+        grid-template-columns: 1fr;
+    }
+
+    .payment-methods {
+
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+
+        min-height: 95px;
+    }
+
+}
+
+
+/* =========================================
+   PRINT
+   ========================================= */
+
+@media print {
+
+    .sidebar,
+    .header,
+    .report-toolbar,
+    .report-filters {
+
+        display: none !important;
+    }
+
+    .main {
+
+        margin: 0 !important;
+
+        width: 100% !important;
+    }
+
+    .reports-content {
+
+        padding: 0;
+    }
+
+    .report-panel,
+    .stat-card,
+    .small-stat {
+
+        break-inside: avoid;
+
+        box-shadow: none;
+    }
+}
