@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | المنتجات والمخزن</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="products.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">TS</div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+        </div>
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                <span>🏠</span>
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item">
+                <span>🛒</span>
+                <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item active">
+                <span>📦</span>
+                <span>المنتجات والمخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item">
+                <span>🔄</span>
+                <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item">
+                <span>🔧</span>
+                <span>الصيانة</span>
+            </a>
+
+            <div class="menu-title">الإدارة المالية</div>
+
+            <a href="accounts.html" class="menu-item">
+                <span>💰</span>
+                <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item">
+                <span>💸</span>
+                <span>المصروفات</span>
+            </a>
+
+            <div class="menu-title">التقارير والإدارة</div>
+
+            <a href="reports.html" class="menu-item">
+                <span>📊</span>
+                <span>التقارير</span>
+            </a>
+
+            <a href="users.html" class="menu-item">
+                <span>👥</span>
+                <span>المستخدمين</span>
+            </a>
+
+        </nav>
+
+        <div class="sidebar-bottom">
+            <button id="logoutButton" class="logout-button">
+                🚪
+                <span>تسجيل الخروج</span>
+            </button>
+        </div>
+
+    </aside>
+
+
+    <!-- Main -->
+    <main class="main">
+
+        <header class="header">
+
+            <button id="menuButton" class="menu-button">
+                ☰
+            </button>
+
+            <div class="header-title">
+                <h1>المنتجات والمخزن</h1>
+                <p>إدارة المنتجات والكميات والأسعار</p>
+            </div>
+
+            <div class="user-area">
+
+                <div class="user-info">
+                    <strong id="usernameDisplay">admin</strong>
+                    <span>المدير</span>
+                </div>
+
+                <div class="user-avatar">A</div>
+
+            </div>
+
+        </header>
+
+
+        <section class="products-content">
+
+
+            <!-- Statistics -->
+
+            <div class="product-stats">
+
+                <div class="product-stat">
+
+                    <div class="product-stat-icon blue">
+                        📦
+                    </div>
+
+                    <div>
+                        <span>إجمالي المنتجات</span>
+                        <strong id="totalProducts">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="product-stat">
+
+                    <div class="product-stat-icon green">
+                        💰
+                    </div>
+
+                    <div>
+                        <span>قيمة المخزن</span>
+                        <strong id="stockValue">0 ج.م</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="product-stat">
+
+                    <div class="product-stat-icon orange">
+                        ⚠️
+                    </div>
+
+                    <div>
+                        <span>مخزون منخفض</span>
+                        <strong id="lowStock">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="product-stat">
+
+                    <div class="product-stat-icon red">
+                        ❌
+                    </div>
+
+                    <div>
+                        <span>نفد من المخزن</span>
+                        <strong id="outOfStock">0</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Toolbar -->
+
+            <div class="products-toolbar">
+
+                <div class="search-box">
+
+                    <span>🔎</span>
+
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="ابحث بالباركود أو اسم المنتج أو التصنيف">
+
+                </div>
+
+                <button
+                    id="addProductButton"
+                    class="add-product-button">
+
+                    ＋ إضافة منتج
+
+                </button>
+
+            </div>
+
+
+            <!-- Table -->
+
+            <div class="products-panel">
+
+                <div class="products-panel-header">
+
+                    <div>
+                        <h2>قائمة المنتجات</h2>
+
+                        <p>
+                            جميع المنتجات الموجودة في المخزن
+                        </p>
+                    </div>
+
+                    <select id="stockFilter" class="stock-filter">
+
+                        <option value="all">
+                            كل المنتجات
+                        </option>
+
+                        <option value="available">
+                            متوفر
+                        </option>
+
+                        <option value="low">
+                            مخزون منخفض
+                        </option>
+
+                        <option value="out">
+                            نفد المخزون
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table class="products-table">
+
+                        <thead>
+
+                            <tr>
+
+                                <th>#</th>
+                                <th>الباركود</th>
+                                <th>المنتج</th>
+                                <th>التصنيف</th>
+                                <th>شراء</th>
+                                <th>بيع</th>
+                                <th>الكمية</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="productsBody"></tbody>
+
+                    </table>
+
+                </div>
+
+
+                <div id="emptyProducts" class="empty-products">
+
+                    <div>📦</div>
+
+                    <h3>لا توجد منتجات</h3>
+
+                    <p>
+                        أضف أول منتج إلى المخزن للبدء.
+                    </p>
+
+                    <button id="emptyAddButton">
+                        ＋ إضافة منتج
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- Add / Edit Modal -->
+
+<div id="productModal" class="modal">
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div>
+                <h2 id="modalTitle">إضافة منتج</h2>
+                <p>بيانات المنتج والمخزون</p>
+            </div>
+
+            <button id="closeModal" class="close-modal">
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="productForm">
+
+            <input type="hidden" id="productId">
+
+
+            <div class="form-grid">
+
+                <div class="form-field">
+
+                    <label>الباركود *</label>
+
+                    <input
+                        id="barcode"
+                        type="text"
+                        required
+                        placeholder="مثال: 1005">
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label>اسم المنتج *</label>
+
+                    <input
+                        id="productName"
+                        type="text"
+                        required
+                        placeholder="اسم المنتج">
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label>التصنيف</label>
+
+                    <input
+                        id="category"
+                        type="text"
+                        placeholder="موبايل / إكسسوار">
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label>سعر الشراء *</label>
+
+                    <input
+                        id="buyPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                        placeholder="0">
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label>سعر البيع *</label>
+
+                    <input
+                        id="sellPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                        placeholder="0">
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label>الكمية *</label>
+
+                    <input
+                        id="quantity"
+                        type="number"
+                        min="0"
+                        step="1"
+                        required
+                        placeholder="0">
+
+                </div>
+
+
+                <div class="form-field">
+
+                    <label>الحد الأدنى للمخزون</label>
+
+                    <input
+                        id="minQuantity"
+                        type="number"
+                        min="0"
+                        step="1"
+                        value="2"
+                        placeholder="2">
+
+                </div>
+
+            </div>
+
+
+            <div id="formError" class="form-error"></div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancelModal"
+                    class="cancel-button">
+
+                    إلغاء
+
+                </button>
+
+                <button
+                    type="submit"
+                    class="save-product-button">
+
+                    💾 حفظ المنتج
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<div id="toast" class="product-toast"></div>
+
+
+<script src="dashboard.js"></script>
+<script src="products.js"></script>
+
+</body>
+</html>
