@@ -1,285 +1,330 @@
-/* =========================================
-   TOP STORE WEB
-   Login System
-   ========================================= */
-
 "use strict";
 
+/*
+====================================================
+ TOP STORE - LOGIN SYSTEM
+ نظام تسجيل الدخول والصلاحيات
+====================================================
+*/
 
-/* =========================================
-   Login Settings
-   ========================================= */
-
-const LOGIN_USERNAME = "admin";
-const LOGIN_PASSWORD = "1234";
-
-const DASHBOARD_PAGE = "dashboard.html";
+const USERS_KEY = "topStoreUsers";
+const CURRENT_USER_KEY = "topStoreCurrentUser";
 
 
-/* =========================================
-   Elements
-   ========================================= */
+/* ==================================================
+   المستخدمين الافتراضيين
+================================================== */
+
+const defaultUsers = [
+
+    {
+        id: 1,
+        username: "admin",
+        password: "1234",
+        name: "المدير",
+        role: "manager",
+
+        permissions: {
+            sales: true,
+            products: true,
+            returns: true,
+            maintenance: true,
+            accounts: true,
+            expenses: true,
+            reports: true,
+            users: true,
+            settings: true,
+            deleteReports: true
+        }
+    },
+
+    {
+        id: 2,
+        username: "employee",
+        password: "1234",
+        name: "الموظف",
+        role: "employee",
+
+        permissions: {
+            sales: true,
+            products: true,
+            returns: true,
+            maintenance: true,
+            accounts: false,
+            expenses: false,
+            reports: false,
+            users: false,
+            settings: false,
+            deleteReports: false
+        }
+    }
+
+];
+
+
+/* ==================================================
+   إنشاء المستخدمين أول مرة
+================================================== */
+
+function initializeUsers() {
+
+    const savedUsers =
+        localStorage.getItem(
+            USERS_KEY
+        );
+
+
+    if (!savedUsers) {
+
+        localStorage.setItem(
+            USERS_KEY,
+            JSON.stringify(
+                defaultUsers
+            )
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   قراءة المستخدمين
+================================================== */
+
+function getUsers() {
+
+    try {
+
+        const users =
+            JSON.parse(
+                localStorage.getItem(
+                    USERS_KEY
+                ) || "[]"
+            );
+
+
+        return Array.isArray(users)
+            ? users
+            : [];
+
+    } catch {
+
+        return [];
+
+    }
+
+}
+
+
+/* ==================================================
+   LOGIN
+================================================== */
+
+function login(username, password) {
+
+    const users =
+        getUsers();
+
+
+    const user =
+        users.find(
+            item =>
+                item.username ===
+                    username &&
+                item.password ===
+                    password
+        );
+
+
+    if (!user) {
+
+        return {
+            success: false,
+            message:
+                "اسم المستخدم أو كلمة المرور غير صحيحة"
+        };
+
+    }
+
+
+    /*
+     * حفظ المستخدم الحالي
+     */
+
+    localStorage.setItem(
+        CURRENT_USER_KEY,
+        JSON.stringify({
+            id: user.id,
+            username: user.username,
+            name: user.name,
+            role: user.role,
+            permissions:
+                user.permissions
+        })
+    );
+
+
+    return {
+        success: true,
+        user: user
+    };
+
+}
+
+
+/* ==================================================
+   تشغيل النظام
+================================================== */
+
+initializeUsers();
+
+
+/* ==================================================
+   عناصر صفحة تسجيل الدخول
+================================================== */
 
 const loginForm =
-    document.getElementById("loginForm");
+    document.getElementById(
+        "loginForm"
+    );
 
 const usernameInput =
-    document.getElementById("username");
+    document.getElementById(
+        "username"
+    );
 
 const passwordInput =
-    document.getElementById("password");
-
-const togglePassword =
-    document.getElementById("togglePassword");
-
-const loginButton =
-    document.getElementById("loginButton");
+    document.getElementById(
+        "password"
+    );
 
 const loginMessage =
-    document.getElementById("loginMessage");
+    document.getElementById(
+        "loginMessage"
+    );
 
 
-/* =========================================
-   Show Message
-   ========================================= */
+/* ==================================================
+   تسجيل الدخول
+================================================== */
 
-function showMessage(message, type) {
+if (loginForm) {
 
-    loginMessage.textContent = message;
+    loginForm.addEventListener(
+        "submit",
+        function (event) {
 
-    loginMessage.className =
-        "login-message " + type;
-}
+            event.preventDefault();
 
 
-/* =========================================
-   Clear Message
-   ========================================= */
+            const username =
+                usernameInput
+                    ? usernameInput.value.trim()
+                    : "";
 
-function clearMessage() {
+            const password =
+                passwordInput
+                    ? passwordInput.value
+                    : "";
 
-    loginMessage.textContent = "";
 
-    loginMessage.className =
-        "login-message";
-}
+            if (!username || !password) {
 
-
-/* =========================================
-   Loading
-   ========================================= */
-
-function setLoading(isLoading) {
-
-    if (isLoading) {
-
-        loginButton.classList.add("loading");
-
-        loginButton.disabled = true;
-
-    } else {
-
-        loginButton.classList.remove("loading");
-
-        loginButton.disabled = false;
-    }
-}
-
-
-/* =========================================
-   Toggle Password
-   ========================================= */
-
-togglePassword.addEventListener(
-    "click",
-    function () {
-
-        const isPassword =
-            passwordInput.type === "password";
-
-        if (isPassword) {
-
-            passwordInput.type = "text";
-
-            togglePassword.textContent = "🙈";
-
-            togglePassword.setAttribute(
-                "aria-label",
-                "إخفاء كلمة المرور"
-            );
-
-        } else {
-
-            passwordInput.type = "password";
-
-            togglePassword.textContent = "👁";
-
-            togglePassword.setAttribute(
-                "aria-label",
-                "إظهار كلمة المرور"
-            );
-        }
-    }
-);
-
-
-/* =========================================
-   Login
-   ========================================= */
-
-loginForm.addEventListener(
-    "submit",
-    function (event) {
-
-        event.preventDefault();
-
-        clearMessage();
-
-        const username =
-            usernameInput.value.trim();
-
-        const password =
-            passwordInput.value;
-
-
-        /* Empty username */
-
-        if (username === "") {
-
-            showMessage(
-                "من فضلك أدخل اسم المستخدم.",
-                "error"
-            );
-
-            usernameInput.focus();
-
-            return;
-        }
-
-
-        /* Empty password */
-
-        if (password === "") {
-
-            showMessage(
-                "من فضلك أدخل كلمة المرور.",
-                "error"
-            );
-
-            passwordInput.focus();
-
-            return;
-        }
-
-
-        /* Loading */
-
-        setLoading(true);
-
-
-        /*
-         * تأخير بسيط لمحاكاة عملية تسجيل الدخول.
-         * لاحقًا هنربطها بقاعدة بيانات حقيقية.
-         */
-
-        setTimeout(function () {
-
-            if (
-                username === LOGIN_USERNAME &&
-                password === LOGIN_PASSWORD
-            ) {
-
-                showMessage(
-                    "تم تسجيل الدخول بنجاح...",
-                    "success"
-                );
-
-
-                /*
-                 * حفظ بيانات الجلسة مؤقتًا.
-                 * هنطورها لاحقًا لنظام مستخدمين وصلاحيات.
-                 */
-
-                sessionStorage.setItem(
-                    "topStoreLoggedIn",
-                    "true"
-                );
-
-                sessionStorage.setItem(
-                    "topStoreUsername",
-                    username
-                );
-
-
-                /*
-                 * الانتقال إلى الصفحة الرئيسية.
-                 */
-
-                window.location.href =
-                    DASHBOARD_PAGE;
-
-            } else {
-
-                setLoading(false);
-
-                showMessage(
-                    "اسم المستخدم أو كلمة المرور غير صحيحة.",
+                showLoginMessage(
+                    "اكتب اسم المستخدم وكلمة المرور",
                     "error"
                 );
 
-                passwordInput.value = "";
+                return;
 
-                passwordInput.focus();
             }
 
-        }, 700);
 
-    }
-);
+            const result =
+                login(
+                    username,
+                    password
+                );
 
 
-/* =========================================
-   Enter Key
-   ========================================= */
+            if (!result.success) {
 
-usernameInput.addEventListener(
-    "keydown",
-    function (event) {
+                showLoginMessage(
+                    result.message,
+                    "error"
+                );
 
-        if (event.key === "Enter") {
+                return;
 
-            passwordInput.focus();
+            }
+
+
+            showLoginMessage(
+                "تم تسجيل الدخول بنجاح ✓",
+                "success"
+            );
+
+
+            /*
+             * الانتقال للوحة التحكم
+             */
+
+            setTimeout(
+                function () {
+
+                    window.location.href =
+                        "dashboard.html";
+
+                },
+                500
+            );
 
         }
+    );
+
+}
+
+
+/* ==================================================
+   رسالة تسجيل الدخول
+================================================== */
+
+function showLoginMessage(
+    message,
+    type
+) {
+
+    if (!loginMessage) {
+
+        alert(message);
+
+        return;
 
     }
-);
 
 
-/* =========================================
-   Prevent Empty Spaces at Start
-   ========================================= */
-
-usernameInput.addEventListener(
-    "input",
-    function () {
-
-        this.value =
-            this.value.replace(/^\s+/, "");
-
-    }
-);
+    loginMessage.textContent =
+        message;
 
 
-/* =========================================
-   Initial Focus
-   ========================================= */
+    loginMessage.className =
+        "login-message " +
+        type;
 
-window.addEventListener(
-    "load",
-    function () {
+}
 
-        usernameInput.focus();
 
-    }
-);
+/* ==================================================
+   تصدير الدوال
+================================================== */
+
+window.TOPSTORE_AUTH = {
+
+    getUsers,
+
+    login,
+
+    initializeUsers
+
+};
