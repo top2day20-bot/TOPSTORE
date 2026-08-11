@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>TOP STORE | المبيعات</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+
+    <style>
+        /* ==============================
+           SALES PAGE
+           ============================== */
+
+        .sales-content {
+            padding: 25px;
+        }
+
+        .sales-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 360px;
+            gap: 20px;
+        }
+
+        .sales-panel {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .panel-header h2 {
+            font-size: 18px;
+        }
+
+        .panel-header p {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .invoice-number {
+            background: #eff6ff;
+            color: var(--primary);
+            padding: 9px 12px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .sales-tools {
+            padding: 18px 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .field.full {
+            grid-column: 1 / -1;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 45px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 0 12px;
+            outline: none;
+            background: #f8fafc;
+            font-family: inherit;
+            font-size: 13px;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(37,99,235,.08);
+        }
+
+        .barcode-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .barcode-row input {
+            flex: 1;
+        }
+
+        .add-product-btn {
+            height: 45px;
+            padding: 0 18px;
+            border: none;
+            border-radius: 9px;
+            background: var(--primary);
+            color: #fff;
+            font-family: inherit;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .add-product-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .cart-wrapper {
+            overflow-x: auto;
+        }
+
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        .cart-table th {
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 12px;
+            padding: 13px 10px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        .cart-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        .product-name {
+            text-align: right !important;
+            font-weight: 700;
+        }
+
+        .qty-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .qty-control button {
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 7px;
+            background: #e2e8f0;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .qty-control button:hover {
+            background: #cbd5e1;
+        }
+
+        .qty-value {
+            min-width: 20px;
+            font-weight: 700;
+        }
+
+        .delete-item {
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        .empty-cart {
+            padding: 60px 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .empty-cart-icon {
+            font-size: 42px;
+            margin-bottom: 10px;
+        }
+
+        /* Summary */
+
+        .summary-panel {
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .summary-body {
+            padding: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 13px;
+        }
+
+        .summary-row strong {
+            font-size: 15px;
+        }
+
+        .discount-box {
+            display: flex;
+            gap: 7px;
+            margin: 15px 0;
+        }
+
+        .discount-box input {
+            flex: 1;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 10px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .discount-box select {
+            width: 75px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .total-row {
+            margin-top: 10px;
+            padding: 18px 0;
+            border-top: 2px solid var(--border);
+        }
+
+        .total-row span {
+            font-weight: 700;
+        }
+
+        .total-row strong {
+            color: var(--primary);
+            font-size: 25px;
+        }
+
+        .payment-section {
+            margin-top: 10px;
+        }
+
+        .payment-section label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .payment-section input,
+        .payment-section select {
+            width: 100%;
+            height: 45px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: 0 12px;
+            outline: none;
+            font-family: inherit;
+            background: #f8fafc;
+        }
+
+        .remaining-box {
+            margin-top: 12px;
+            padding: 14px;
+            border-radius: 10px;
+            background: #f8fafc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .remaining-box strong {
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 9px;
+            margin-top: 18px;
+        }
+
+        .action-btn {
+            height: 48px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 700;
+        }
+
+        .save-btn {
+            background: #16a34a;
+            color: white;
+        }
+
+        .save-btn:hover {
+            background: #15803d;
+        }
+
+        .clear-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .print-btn {
+            grid-column: 1 / -1;
+            background: #0f172a;
+            color: white;
+        }
+
+        .customer-section {
+            padding: 18px 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .customer-section h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .customer-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .customer-grid input {
+            width: 100%;
+            height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0 10px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .customer-grid input:focus {
+            border-color: var(--primary);
+        }
+
+        .toast {
+            position: fixed;
+            left: 25px;
+            bottom: 25px;
+            padding: 13px 18px;
+            background: #0f172a;
+            color: white;
+            border-radius: 10px;
+            font-size: 13px;
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+            transition: .3s;
+            z-index: 9999;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            background: #16a34a;
+        }
+
+        .toast.error {
+            background: #dc2626;
+        }
+
+        @media (max-width: 1000px) {
+            .sales-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .sales-content {
+                padding: 15px;
+            }
+
+            .sales-tools {
+                grid-template-columns: 1fr;
+            }
+
+            .field.full {
+                grid-column: auto;
+            }
+
+            .customer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="logo">
+
+            <div class="logo-icon">
+                TS
+            </div>
+
+            <div>
+                <strong>TOP STORE</strong>
+                <span>نظام إدارة المتجر</span>
+            </div>
+
+        </div>
+
+
+        <nav class="menu">
+
+            <a href="dashboard.html" class="menu-item">
+                <span>🏠</span>
+                <span>الرئيسية</span>
+            </a>
+
+            <a href="sales.html" class="menu-item active">
+                <span>🛒</span>
+                <span>المبيعات</span>
+            </a>
+
+            <a href="products.html" class="menu-item">
+                <span>📦</span>
+                <span>المنتجات والمخزن</span>
+            </a>
+
+            <a href="returns.html" class="menu-item">
+                <span>🔄</span>
+                <span>المرتجعات</span>
+            </a>
+
+            <a href="maintenance.html" class="menu-item">
+                <span>🔧</span>
+                <span>الصيانة</span>
+            </a>
+
+            <div class="menu-title">
+                الإدارة المالية
+            </div>
+
+            <a href="accounts.html" class="menu-item">
+                <span>💰</span>
+                <span>الحسابات</span>
+            </a>
+
+            <a href="expenses.html" class="menu-item">
+                <span>💸</span>
+                <span>المصروفات</span>
+            </a>
+
+            <div class="menu-title">
+                التقارير والإدارة
+            </div>
+
+            <a href="reports.html" class="menu-item">
+                <span>📊</span>
+                <span>التقارير</span>
+            </a>
+
+            <a href="users.html" class="menu-item">
+                <span>👥</span>
+                <span>المستخدمين</span>
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button id="logoutButton"
+                    class="logout-button">
+
+                🚪
+                <span>تسجيل الخروج</span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="header">
+
+            <button id="menuButton"
+                    class="menu-button">
+                ☰
+            </button>
+
+            <div class="header-title">
+
+                <h1>المبيعات</h1>
+
+                <p>
+                    إنشاء وإدارة فواتير البيع
+                </p>
+
+            </div>
+
+
+            <div class="user-area">
+
+                <div class="user-info">
+
+                    <strong id="usernameDisplay">
+                        admin
+                    </strong>
+
+                    <span>
+                        المدير
+                    </span>
+
+                </div>
+
+                <div class="user-avatar">
+                    A
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <section class="sales-content">
+
+            <div class="sales-layout">
+
+
+                <!-- Products / Cart -->
+
+                <div class="sales-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                🛒 فاتورة بيع جديدة
+                            </h2>
+
+                            <p>
+                                أضف المنتجات إلى الفاتورة
+                            </p>
+
+                        </div>
+
+                        <div class="invoice-number">
+                            فاتورة #<span id="invoiceNumber"></span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="sales-tools">
+
+                        <div class="field full">
+
+                            <label>
+                                باركود / اسم المنتج
+                            </label>
+
+                            <div class="barcode-row">
+
+                                <input
+                                    type="text"
+                                    id="productInput"
+                                    placeholder="امسح الباركود أو اكتب اسم المنتج">
+
+                                <button
+                                    class="add-product-btn"
+                                    id="addProductButton">
+
+                                    + إضافة
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="cart-wrapper">
+
+                        <table class="cart-table">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        المنتج
+                                    </th>
+
+                                    <th>
+                                        السعر
+                                    </th>
+
+                                    <th>
+                                        الكمية
+                                    </th>
+
+                                    <th>
+                                        الخصم
+                                    </th>
+
+                                    <th>
+                                        الإجمالي
+                                    </th>
+
+                                    <th>
+                                        حذف
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="cartBody">
+
+                            </tbody>
+
+                        </table>
+
+
+                        <div
+                            class="empty-cart"
+                            id="emptyCart">
+
+                            <div class="empty-cart-icon">
+                                🛒
+                            </div>
+
+                            <strong>
+                                الفاتورة فارغة
+                            </strong>
+
+                            <p>
+                                أضف منتجًا باستخدام الباركود أو الاسم
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="customer-section">
+
+                        <h3>
+                            👤 بيانات العميل — اختياري
+                        </h3>
+
+                        <div class="customer-grid">
+
+                            <input
+                                id="customerName"
+                                type="text"
+                                placeholder="اسم العميل">
+
+                            <input
+                                id="customerPhone"
+                                type="tel"
+                                placeholder="رقم الهاتف">
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Summary -->
+
+                <div class="sales-panel summary-panel">
+
+                    <div class="panel-header">
+
+                        <div>
+
+                            <h2>
+                                💰 ملخص الفاتورة
+                            </h2>
+
+                            <p>
+                                إجمالي عملية البيع
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="summary-body">
+
+                        <div class="summary-row">
+
+                            <span>
+                                عدد المنتجات
+                            </span>
+
+                            <strong id="itemsCount">
+                                0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                الإجمالي قبل الخصم
+                            </span>
+
+                            <strong>
+                                <span id="subtotal">
+                                    0.00
+                                </span>
+                                ج.م
+                            </strong>
+
+                        </div>
+
+
+                        <div class="discount-box">
+
+                            <input
+                                type="number"
+                                id="discountInput"
+                                value="0"
+                                min="0"
+                                placeholder="الخصم">
+
+                            <select id="discountType">
+
+                                <option value="amount">
+                                    ج.م
+                                </option>
+
+                                <option value="percent">
+                                    %
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="summary-row">
+
+                            <span>
+                                قيمة الخصم
+                            </span>
+
+                            <strong>
+                                <span id="discountValue">
+                                    0.00
+                                </span>
+                                ج.م
+                            </strong>
+
+                        </div>
+
+
+                        <div class="summary-row total-row">
+
+                            <span>
+                                الإجمالي النهائي
+                            </span>
+
+                            <strong>
+                                <span id="grandTotal">
+                                    0.00
+                                </span>
+                                ج.م
+                            </strong>
+
+                        </div>
+
+
+                        <div class="payment-section">
+
+                            <label>
+                                طريقة الدفع
+                            </label>
+
+                            <select id="paymentMethod">
+
+                                <option value="cash">
+                                    نقدي
+                                </option>
+
+                                <option value="card">
+                                    بطاقة
+                                </option>
+
+                                <option value="wallet">
+                                    محفظة إلكترونية
+                                </option>
+
+                                <option value="mixed">
+                                    مختلط
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="payment-section">
+
+                            <label>
+                                المبلغ المدفوع
+                            </label>
+
+                            <input
+                                type="number"
+                                id="paidInput"
+                                value="0"
+                                min="0"
+                                placeholder="المبلغ المدفوع">
+
+                        </div>
+
+
+                        <div class="remaining-box">
+
+                            <span>
+                                الباقي / المتبقي
+                            </span>
+
+                            <strong id="remaining">
+                                0.00 ج.م
+                            </strong>
+
+                        </div>
+
+
+                        <div class="action-buttons">
+
+                            <button
+                                id="saveSale"
+                                class="action-btn save-btn">
+
+                                💾 حفظ الفاتورة
+
+                            </button>
+
+
+                            <button
+                                id="clearSale"
+                                class="action-btn clear-btn">
+
+                                🗑️ إلغاء
+
+                            </button>
+
+
+                            <button
+                                id="printSale"
+                                class="action-btn print-btn">
+
+                                🖨️ حفظ وطباعة الفاتورة
+
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+
+<script src="dashboard.js"></script>
+<script src="sales.js"></script>
+
+</body>
+
+</html>
