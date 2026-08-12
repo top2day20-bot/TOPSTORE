@@ -1,200 +1,327 @@
 "use strict";
 
-/*
-========================================================
- TOP STORE
- CENTRAL PERMISSIONS SYSTEM
-========================================================
+/* =====================================================
+   TOP STORE - PERMISSIONS SYSTEM
+   ===================================================== */
 
- الصلاحيات:
+const CURRENT_USER_KEY = "topStoreCurrentUser";
 
- admin
-    = مدير
-    = كل الصلاحيات
+/* =====================================================
+   الصفحات والصلاحيات
+===================================================== */
 
- employee
-    = موظف
-    = المبيعات
-    = المخزن
-    = المرتجعات
-    = الصيانة
+const PAGE_PERMISSIONS = {
 
-========================================================
-*/
-
-
-/* ======================================================
-   CONFIGURATION
-====================================================== */
-
-const TOP_STORE_PERMISSIONS = {
-
-    admin: {
-
-        dashboard: true,
-
-        sales: true,
-
-        products: true,
-
-        returns: true,
-
-        maintenance: true,
-
-        accounts: true,
-
-        expenses: true,
-
-        reports: true,
-
-        users: true
-
-    },
-
-
-    employee: {
-
-        dashboard: true,
-
-        sales: true,
-
-        products: true,
-
-        returns: true,
-
-        maintenance: true,
-
-        accounts: false,
-
-        expenses: false,
-
-        reports: false,
-
-        users: false
-
-    }
+    "dashboard.html": "dashboard",
+    "sales.html": "sales",
+    "products.html": "products",
+    "returns.html": "returns",
+    "maintenance.html": "maintenance",
+    "accounts.html": "accounts",
+    "expenses.html": "expenses",
+    "reports.html": "reports",
+    "users.html": "users"
 
 };
 
 
-/* ======================================================
-   PAGE NAMES
-====================================================== */
+/* =====================================================
+   صلاحيات المدير
+===================================================== */
 
-const TOP_STORE_PAGES = {
+const ADMIN_PERMISSIONS = {
 
-    "dashboard.html":
-        "dashboard",
-
-    "sales.html":
-        "sales",
-
-    "products.html":
-        "products",
-
-    "returns.html":
-        "returns",
-
-    "maintenance.html":
-        "maintenance",
-
-    "accounts.html":
-        "accounts",
-
-    "expenses.html":
-        "expenses",
-
-    "reports.html":
-        "reports",
-
-    "users.html":
-        "users"
+    dashboard: true,
+    sales: true,
+    products: true,
+    returns: true,
+    maintenance: true,
+    accounts: true,
+    expenses: true,
+    reports: true,
+    users: true
 
 };
 
 
-/* ======================================================
-   GET CURRENT USER
-====================================================== */
+/* =====================================================
+   صلاحيات الموظف
+===================================================== */
 
-function getTopStoreCurrentUser() {
+const EMPLOYEE_PERMISSIONS = {
+
+    dashboard: true,
+    sales: true,
+    products: true,
+    returns: true,
+    maintenance: true,
+
+    accounts: false,
+    expenses: false,
+    reports: false,
+    users: false
+
+};
+
+
+/* =====================================================
+   الحصول على المستخدم الحالي
+===================================================== */
+
+function getTopStoreUser() {
 
     try {
 
-        return JSON.parse(
+        const data =
             localStorage.getItem(
-                "topStoreCurrentUser"
-            )
+                CURRENT_USER_KEY
+            );
+
+        if (!data) {
+            return null;
+        }
+
+        return JSON.parse(data);
+
+    } catch (error) {
+
+        console.error(
+            "TOP STORE USER ERROR:",
+            error
         );
 
-    } catch {
-
         return null;
-
     }
 
 }
 
 
-/* ======================================================
-   GET ROLE
-====================================================== */
+/* =====================================================
+   توحيد اسم الصلاحية
+===================================================== */
+
+function normalizeRole(role) {
+
+    if (!role) {
+        return "employee";
+    }
+
+    const value =
+        String(role)
+            .trim()
+            .toLowerCase();
+
+
+    /* المدير */
+
+    if (
+        value === "admin" ||
+        value === "administrator" ||
+        value === "manager" ||
+        value === "مدير" ||
+        value === "المدير"
+    ) {
+
+        return "admin";
+
+    }
+
+
+    /* الموظف */
+
+    if (
+        value === "employee" ||
+        value === "staff" ||
+        value === "worker" ||
+        value === "موظف" ||
+        value === "الموظف"
+    ) {
+
+        return "employee";
+
+    }
+
+
+    return "employee";
+
+}
+
+
+/* =====================================================
+   الحصول على دور المستخدم
+===================================================== */
 
 function getTopStoreRole() {
 
     const user =
-        getTopStoreCurrentUser();
-
+        getTopStoreUser();
 
     if (!user) {
-
         return null;
-
     }
 
-
-    return user.role ||
-        "employee";
-
-}
-
-
-/* ======================================================
-   IS LOGGED IN
-====================================================== */
-
-function isTopStoreLoggedIn() {
-
-    return !!getTopStoreCurrentUser();
+    return normalizeRole(
+        user.role
+    );
 
 }
 
 
-/* ======================================================
-   CHECK PERMISSION
-====================================================== */
+/* =====================================================
+   التحقق من الصلاحية
+===================================================== */
 
 function hasTopStorePermission(
     permission
 ) {
 
-    const role =
-        getTopStoreRole();
+    const user =
+        getTopStoreUser();
+
+    if (!user) {
+        return false;
+    }
 
 
-    if (!role) {
+    /* الحساب متوقف */
+
+    if (
+        user.active === false
+    ) {
 
         return false;
 
     }
 
 
-    /*
-    المدير له كل الصلاحيات
-    */
+    const role =
+        normalizeRole(
+            user.role
+        );
+
+
+    /* المدير */
 
     if (
         role === "admin"
+    ) {
+
+        return (
+            ADMIN_PERMISSIONS[
+                permission
+            ] === true
+        );
+
+    }
+
+
+    /* الموظف */
+
+    if (
+        role === "employee"
+    ) {
+
+        return (
+            EMPLOYEE_PERMISSIONS[
+                permission
+            ] === true
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =====================================================
+   حماية الصفحة الحالية
+===================================================== */
+
+function protectCurrentPage() {
+
+    const user =
+        getTopStoreUser();
+
+
+    /* مفيش مستخدم */
+
+    if (!user) {
+
+        window.location.replace(
+            "index.html"
+        );
+
+        return false;
+
+    }
+
+
+    /* الحساب متوقف */
+
+    if (
+        user.active === false
+    ) {
+
+        localStorage.removeItem(
+            CURRENT_USER_KEY
+        );
+
+        alert(
+            "هذا الحساب متوقف. تواصل مع المدير."
+        );
+
+        window.location.replace(
+            "index.html"
+        );
+
+        return false;
+
+    }
+
+
+    let page =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+
+    if (!page) {
+
+        page =
+            "dashboard.html";
+
+    }
+
+
+    const permission =
+        PAGE_PERMISSIONS[
+            page
+        ];
+
+
+    /*
+       الصفحة غير موجودة في نظام الصلاحيات
+       نسمح بها
+    */
+
+    if (!permission) {
+
+        return true;
+
+    }
+
+
+    /*
+       المستخدم لديه الصلاحية
+    */
+
+    if (
+        hasTopStorePermission(
+            permission
+        )
     ) {
 
         return true;
@@ -202,152 +329,27 @@ function hasTopStorePermission(
     }
 
 
-    const rolePermissions =
-        TOP_STORE_PERMISSIONS[
-            role
-        ];
+    /*
+       ممنوع
+    */
 
-
-    if (!rolePermissions) {
-
-        return false;
-
-    }
-
-
-    return (
-        rolePermissions[
-            permission
-        ] === true
+    alert(
+        "ليس لديك صلاحية للدخول إلى هذه الصفحة."
     );
 
-}
 
+    window.location.replace(
+        "dashboard.html"
+    );
 
-/* ======================================================
-   CURRENT PAGE
-====================================================== */
-
-function getCurrentPagePermission() {
-
-    let page =
-        window.location.pathname
-            .split("/")
-            .pop();
-
-
-    /*
-    لو GitHub Pages أو الصفحة فاضية
-    */
-
-    if (!page) {
-
-        page =
-            "index.html";
-
-    }
-
-
-    return TOP_STORE_PAGES[
-        page
-    ] || null;
+    return false;
 
 }
 
 
-/* ======================================================
-   PROTECT CURRENT PAGE
-====================================================== */
-
-function protectCurrentPage() {
-
-    const pagePermission =
-        getCurrentPagePermission();
-
-
-    /*
-    index/login لا تحتاج حماية
-    */
-
-    if (!pagePermission) {
-
-        return;
-
-    }
-
-
-    const user =
-        getTopStoreCurrentUser();
-
-
-    /*
-    غير مسجل دخول
-    */
-
-    if (!user) {
-
-        window.location.href =
-            "index.html";
-
-        return;
-
-    }
-
-
-    /*
-    المستخدم غير نشط
-    */
-
-    if (
-        user.active === false
-    ) {
-
-        localStorage.removeItem(
-            "topStoreCurrentUser"
-        );
-
-
-        alert(
-            "هذا الحساب متوقف. تواصل مع المدير."
-        );
-
-
-        window.location.href =
-            "index.html";
-
-        return;
-
-    }
-
-
-    /*
-    لا يملك الصلاحية
-    */
-
-    if (
-        !hasTopStorePermission(
-            pagePermission
-        )
-    ) {
-
-        alert(
-            "ليس لديك صلاحية لفتح هذه الصفحة."
-        );
-
-
-        window.location.href =
-            "dashboard.html";
-
-        return;
-
-    }
-
-}
-
-
-/* ======================================================
-   HIDE FORBIDDEN MENU ITEMS
-====================================================== */
+/* =====================================================
+   إخفاء الصفحات غير المسموحة من القائمة
+===================================================== */
 
 function applyMenuPermissions() {
 
@@ -358,38 +360,34 @@ function applyMenuPermissions() {
 
 
     links.forEach(
-        link => {
+        function (link) {
 
             const href =
-                link
-                    .getAttribute(
-                        "href"
-                    );
+                link.getAttribute(
+                    "href"
+                );
 
 
             if (!href) {
-
                 return;
-
             }
 
 
             const page =
                 href
                     .split("/")
-                    .pop();
+                    .pop()
+                    .toLowerCase();
 
 
             const permission =
-                TOP_STORE_PAGES[
+                PAGE_PERMISSIONS[
                     page
                 ];
 
 
             if (!permission) {
-
                 return;
-
             }
 
 
@@ -410,99 +408,9 @@ function applyMenuPermissions() {
 }
 
 
-/* ======================================================
-   DISPLAY USER
-====================================================== */
-
-function displayTopStoreUser() {
-
-    const user =
-        getTopStoreCurrentUser();
-
-
-    if (!user) {
-
-        return;
-
-    }
-
-
-    const name =
-        user.fullName ||
-        user.name ||
-        user.username ||
-        "المستخدم";
-
-
-    const roleText =
-        user.role === "admin"
-            ? "مدير"
-            : "موظف";
-
-
-    const usernameElement =
-        document.getElementById(
-            "usernameDisplay"
-        );
-
-
-    const roleElement =
-        document.getElementById(
-            "roleDisplay"
-        );
-
-
-    if (
-        usernameElement
-    ) {
-
-        usernameElement.textContent =
-            name;
-
-    }
-
-
-    if (
-        roleElement
-    ) {
-
-        roleElement.textContent =
-            roleText;
-
-    }
-
-}
-
-
-/* ======================================================
-   LOGOUT
-====================================================== */
-
-function topStoreLogout() {
-
-    localStorage.removeItem(
-        "topStoreCurrentUser"
-    );
-
-
-    window.location.href =
-        "index.html";
-
-}
-
-
-/* ======================================================
-   APPLY BUTTON PERMISSION
-======================================================
-
- مثال:
-
- <button
-     data-permission="reports">
-     التقارير
- </button>
-
-*/
+/* =====================================================
+   إخفاء الأزرار حسب الصلاحية
+===================================================== */
 
 function applyButtonPermissions() {
 
@@ -513,11 +421,10 @@ function applyButtonPermissions() {
 
 
     elements.forEach(
-        element => {
+        function (element) {
 
             const permission =
-                element.dataset
-                    .permission;
+                element.dataset.permission;
 
 
             if (
@@ -537,146 +444,110 @@ function applyButtonPermissions() {
 }
 
 
-/* ======================================================
-   DISABLE BUTTON INSTEAD OF HIDE
-======================================================
+/* =====================================================
+   عرض بيانات المستخدم
+===================================================== */
 
- لو عايز الزر يفضل ظاهر لكن
- غير قابل للاستخدام:
-
- data-require-permission="accounts"
-
-*/
-
-function applyDisabledPermissions() {
-
-    const elements =
-        document.querySelectorAll(
-            "[data-require-permission]"
-        );
-
-
-    elements.forEach(
-        element => {
-
-            const permission =
-                element.dataset
-                    .requirePermission;
-
-
-            if (
-                !hasTopStorePermission(
-                    permission
-                )
-            ) {
-
-                element.disabled =
-                    true;
-
-                element.classList.add(
-                    "permission-disabled"
-                );
-
-                element.title =
-                    "ليس لديك صلاحية لهذا الإجراء";
-
-            }
-
-        }
-    );
-
-}
-
-
-/* ======================================================
-   REQUIRE ADMIN
-====================================================== */
-
-function requireAdmin() {
+function displayPermissionUser() {
 
     const user =
-        getTopStoreCurrentUser();
+        getTopStoreUser();
 
 
     if (!user) {
-
-        window.location.href =
-            "index.html";
-
-        return false;
-
+        return;
     }
 
 
-    if (
-        user.role !== "admin"
-    ) {
+    const name =
+        user.fullName ||
+        user.name ||
+        user.username ||
+        "المستخدم";
 
-        alert(
-            "هذا الإجراء متاح للمدير فقط."
+
+    const role =
+        normalizeRole(
+            user.role
         );
 
-        return false;
+
+    const usernameDisplay =
+        document.getElementById(
+            "usernameDisplay"
+        );
+
+
+    const roleDisplay =
+        document.getElementById(
+            "roleDisplay"
+        );
+
+
+    if (usernameDisplay) {
+
+        usernameDisplay.textContent =
+            name;
 
     }
 
 
-    return true;
+    if (roleDisplay) {
+
+        roleDisplay.textContent =
+            role === "admin"
+                ? "المدير"
+                : "الموظف";
+
+    }
 
 }
 
 
-/* ======================================================
-   REQUIRE PERMISSION
-====================================================== */
+/* =====================================================
+   تسجيل الخروج
+===================================================== */
 
-function requirePermission(
-    permission
-) {
+function topStoreLogout() {
 
-    if (
-        hasTopStorePermission(
-            permission
-        )
-    ) {
-
-        return true;
-
-    }
-
-
-    alert(
-        "ليس لديك صلاحية لتنفيذ هذا الإجراء."
+    localStorage.removeItem(
+        CURRENT_USER_KEY
     );
 
-
-    return false;
+    window.location.replace(
+        "index.html"
+    );
 
 }
 
 
-/* ======================================================
-   INITIALIZE
-====================================================== */
+/* =====================================================
+   تشغيل النظام
+===================================================== */
 
 function initTopStorePermissions() {
 
-    protectCurrentPage();
+    const allowed =
+        protectCurrentPage();
+
+
+    if (!allowed) {
+        return;
+    }
+
 
     applyMenuPermissions();
 
     applyButtonPermissions();
 
-    applyDisabledPermissions();
-
-    displayTopStoreUser();
+    displayPermissionUser();
 
 }
 
 
-/* ======================================================
-   RUN
-====================================================== */
+/* =====================================================
+   START
+===================================================== */
 
 if (
     document.readyState ===
