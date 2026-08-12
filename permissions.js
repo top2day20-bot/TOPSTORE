@@ -1,17 +1,8 @@
 "use strict";
 
-/* =====================================================
-   TOP STORE - PERMISSIONS SYSTEM
-   ===================================================== */
+const TOPSTORE_USER_KEY = "topStoreCurrentUser";
 
-const CURRENT_USER_KEY = "topStoreCurrentUser";
-
-/* =====================================================
-   الصفحات والصلاحيات
-===================================================== */
-
-const PAGE_PERMISSIONS = {
-
+const TOPSTORE_PAGE_PERMISSIONS = {
     "dashboard.html": "dashboard",
     "sales.html": "sales",
     "products.html": "products",
@@ -21,546 +12,161 @@ const PAGE_PERMISSIONS = {
     "expenses.html": "expenses",
     "reports.html": "reports",
     "users.html": "users"
-
 };
-
-
-/* =====================================================
-   صلاحيات المدير
-===================================================== */
 
 const ADMIN_PERMISSIONS = {
-
-    dashboard: true,
-    sales: true,
-    products: true,
-    returns: true,
-    maintenance: true,
-    accounts: true,
-    expenses: true,
-    reports: true,
-    users: true
-
+    dashboard: true, sales: true, products: true, returns: true,
+    maintenance: true, accounts: true, expenses: true,
+    reports: true, users: true
 };
-
-
-/* =====================================================
-   صلاحيات الموظف
-===================================================== */
 
 const EMPLOYEE_PERMISSIONS = {
-
-    dashboard: true,
-    sales: true,
-    products: true,
-    returns: true,
-    maintenance: true,
-
-    accounts: false,
-    expenses: false,
-    reports: false,
-    users: false
-
+    dashboard: true, sales: true, products: true, returns: true,
+    maintenance: true, accounts: false, expenses: false,
+    reports: false, users: false
 };
 
-
-/* =====================================================
-   الحصول على المستخدم الحالي
-===================================================== */
-
-function getTopStoreUser() {
-
+function getTopStoreCurrentUser() {
     try {
-
-        const data =
-            localStorage.getItem(
-                CURRENT_USER_KEY
-            );
-
-        if (!data) {
-            return null;
-        }
-
-        return JSON.parse(data);
-
+        const saved = localStorage.getItem(TOPSTORE_USER_KEY);
+        return saved ? JSON.parse(saved) : null;
     } catch (error) {
-
-        console.error(
-            "TOP STORE USER ERROR:",
-            error
-        );
-
+        console.error("TOP STORE USER ERROR:", error);
         return null;
     }
-
 }
 
+function getTopStoreRole(user) {
+    if (!user) return null;
 
-/* =====================================================
-   توحيد اسم الصلاحية
-===================================================== */
+    const username = String(user.username || "").trim().toLowerCase();
+    if (username === "admin") return "admin";
 
-function normalizeRole(role) {
+    const value = String(
+        user.role || user.type || user.userRole || user.permission || "employee"
+    ).trim().toLowerCase();
 
-    if (!role) {
-        return "employee";
-    }
-
-    const value =
-        String(role)
-            .trim()
-            .toLowerCase();
-
-
-    /* المدير */
-
-    if (
-        value === "admin" ||
-        value === "administrator" ||
-        value === "manager" ||
-        value === "مدير" ||
-        value === "المدير"
-    ) {
-
+    if (["admin", "administrator", "manager", "مدير", "المدير"].includes(value)) {
         return "admin";
-
     }
-
-
-    /* الموظف */
-
-    if (
-        value === "employee" ||
-        value === "staff" ||
-        value === "worker" ||
-        value === "موظف" ||
-        value === "الموظف"
-    ) {
-
-        return "employee";
-
-    }
-
 
     return "employee";
-
 }
 
+function hasTopStorePermission(permission) {
+    const user = getTopStoreCurrentUser();
+    if (!user) return false;
 
-/* =====================================================
-   الحصول على دور المستخدم
-===================================================== */
+    if (user.active === false || user.active === "false") return false;
 
-function getTopStoreRole() {
+    const role = getTopStoreRole(user);
+    const permissions = role === "admin"
+        ? ADMIN_PERMISSIONS
+        : EMPLOYEE_PERMISSIONS;
 
-    const user =
-        getTopStoreUser();
-
-    if (!user) {
-        return null;
-    }
-
-    return normalizeRole(
-        user.role
-    );
-
+    return permissions[permission] === true;
 }
 
-
-/* =====================================================
-   التحقق من الصلاحية
-===================================================== */
-
-function hasTopStorePermission(
-    permission
-) {
-
-    const user =
-        getTopStoreUser();
+function protectTopStorePage() {
+    const user = getTopStoreCurrentUser();
 
     if (!user) {
+        window.location.replace("index.html");
         return false;
     }
 
-
-    /* الحساب متوقف */
-
-    if (
-        user.active === false
-    ) {
-
+    if (user.active === false || user.active === "false") {
+        localStorage.removeItem(TOPSTORE_USER_KEY);
+        alert("هذا الحساب متوقف. تواصل مع المدير.");
+        window.location.replace("index.html");
         return false;
-
     }
 
+    let page = window.location.pathname.split("/").pop().toLowerCase();
+    if (!page) page = "dashboard.html";
 
-    const role =
-        normalizeRole(
-            user.role
-        );
+    const permission = TOPSTORE_PAGE_PERMISSIONS[page];
+    if (!permission || hasTopStorePermission(permission)) return true;
 
-
-    /* المدير */
-
-    if (
-        role === "admin"
-    ) {
-
-        return (
-            ADMIN_PERMISSIONS[
-                permission
-            ] === true
-        );
-
-    }
-
-
-    /* الموظف */
-
-    if (
-        role === "employee"
-    ) {
-
-        return (
-            EMPLOYEE_PERMISSIONS[
-                permission
-            ] === true
-        );
-
-    }
-
-
+    alert("ليس لديك صلاحية للدخول إلى هذه الصفحة.");
+    window.location.replace("dashboard.html");
     return false;
-
 }
 
+function applyTopStoreMenuPermissions() {
+    document.querySelectorAll(".menu-item").forEach(link => {
+        const href = link.getAttribute("href");
+        if (!href) return;
 
-/* =====================================================
-   حماية الصفحة الحالية
-===================================================== */
+        const page = href.split("/").pop().toLowerCase();
+        const permission = TOPSTORE_PAGE_PERMISSIONS[page];
 
-function protectCurrentPage() {
-
-    const user =
-        getTopStoreUser();
-
-
-    /* مفيش مستخدم */
-
-    if (!user) {
-
-        window.location.replace(
-            "index.html"
-        );
-
-        return false;
-
-    }
-
-
-    /* الحساب متوقف */
-
-    if (
-        user.active === false
-    ) {
-
-        localStorage.removeItem(
-            CURRENT_USER_KEY
-        );
-
-        alert(
-            "هذا الحساب متوقف. تواصل مع المدير."
-        );
-
-        window.location.replace(
-            "index.html"
-        );
-
-        return false;
-
-    }
-
-
-    let page =
-        window.location.pathname
-            .split("/")
-            .pop()
-            .toLowerCase();
-
-
-    if (!page) {
-
-        page =
-            "dashboard.html";
-
-    }
-
-
-    const permission =
-        PAGE_PERMISSIONS[
-            page
-        ];
-
-
-    /*
-       الصفحة غير موجودة في نظام الصلاحيات
-       نسمح بها
-    */
-
-    if (!permission) {
-
-        return true;
-
-    }
-
-
-    /*
-       المستخدم لديه الصلاحية
-    */
-
-    if (
-        hasTopStorePermission(
-            permission
-        )
-    ) {
-
-        return true;
-
-    }
-
-
-    /*
-       ممنوع
-    */
-
-    alert(
-        "ليس لديك صلاحية للدخول إلى هذه الصفحة."
-    );
-
-
-    window.location.replace(
-        "dashboard.html"
-    );
-
-    return false;
-
-}
-
-
-/* =====================================================
-   إخفاء الصفحات غير المسموحة من القائمة
-===================================================== */
-
-function applyMenuPermissions() {
-
-    const links =
-        document.querySelectorAll(
-            ".menu-item"
-        );
-
-
-    links.forEach(
-        function (link) {
-
-            const href =
-                link.getAttribute(
-                    "href"
-                );
-
-
-            if (!href) {
-                return;
-            }
-
-
-            const page =
-                href
-                    .split("/")
-                    .pop()
-                    .toLowerCase();
-
-
-            const permission =
-                PAGE_PERMISSIONS[
-                    page
-                ];
-
-
-            if (!permission) {
-                return;
-            }
-
-
-            if (
-                !hasTopStorePermission(
-                    permission
-                )
-            ) {
-
-                link.style.display =
-                    "none";
-
-            }
-
+        if (permission && !hasTopStorePermission(permission)) {
+            link.style.display = "none";
         }
-    );
-
+    });
 }
 
-
-/* =====================================================
-   إخفاء الأزرار حسب الصلاحية
-===================================================== */
-
-function applyButtonPermissions() {
-
-    const elements =
-        document.querySelectorAll(
-            "[data-permission]"
-        );
-
-
-    elements.forEach(
-        function (element) {
-
-            const permission =
-                element.dataset.permission;
-
-
-            if (
-                !hasTopStorePermission(
-                    permission
-                )
-            ) {
-
-                element.style.display =
-                    "none";
-
-            }
-
+function applyTopStoreButtonPermissions() {
+    document.querySelectorAll("[data-permission]").forEach(element => {
+        const permission = element.getAttribute("data-permission");
+        if (!hasTopStorePermission(permission)) {
+            element.style.display = "none";
         }
-    );
-
+    });
 }
 
+function displayTopStoreUser() {
+    const user = getTopStoreCurrentUser();
+    if (!user) return;
 
-/* =====================================================
-   عرض بيانات المستخدم
-===================================================== */
+    const name = user.fullName || user.name || user.username || "المستخدم";
+    const role = getTopStoreRole(user);
 
-function displayPermissionUser() {
+    const usernameDisplay = document.getElementById("usernameDisplay");
+    const roleDisplay = document.getElementById("roleDisplay");
+    const avatar = document.getElementById("userAvatar") ||
+                   document.querySelector(".user-avatar");
 
-    const user =
-        getTopStoreUser();
-
-
-    if (!user) {
-        return;
-    }
-
-
-    const name =
-        user.fullName ||
-        user.name ||
-        user.username ||
-        "المستخدم";
-
-
-    const role =
-        normalizeRole(
-            user.role
-        );
-
-
-    const usernameDisplay =
-        document.getElementById(
-            "usernameDisplay"
-        );
-
-
-    const roleDisplay =
-        document.getElementById(
-            "roleDisplay"
-        );
-
-
-    if (usernameDisplay) {
-
-        usernameDisplay.textContent =
-            name;
-
-    }
-
-
-    if (roleDisplay) {
-
-        roleDisplay.textContent =
-            role === "admin"
-                ? "المدير"
-                : "الموظف";
-
-    }
-
+    if (usernameDisplay) usernameDisplay.textContent = name;
+    if (roleDisplay) roleDisplay.textContent = role === "admin" ? "المدير" : "الموظف";
+    if (avatar) avatar.textContent = name.charAt(0).toUpperCase();
 }
-
-
-/* =====================================================
-   تسجيل الخروج
-===================================================== */
 
 function topStoreLogout() {
-
-    localStorage.removeItem(
-        CURRENT_USER_KEY
-    );
-
-    window.location.replace(
-        "index.html"
-    );
-
+    localStorage.removeItem(TOPSTORE_USER_KEY);
+    sessionStorage.clear();
+    window.location.replace("index.html");
 }
 
+function setupTopStoreLogout() {
+    document.querySelectorAll("#logoutButton, .logout-button, [data-logout]")
+        .forEach(button => {
+            if (button.dataset.logoutReady === "true") return;
 
-/* =====================================================
-   تشغيل النظام
-===================================================== */
+            button.dataset.logoutReady = "true";
+            button.addEventListener("click", event => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (confirm("هل تريد تسجيل الخروج؟")) {
+                    topStoreLogout();
+                }
+            });
+        });
+}
 
 function initTopStorePermissions() {
+    if (!protectTopStorePage()) return;
 
-    const allowed =
-        protectCurrentPage();
-
-
-    if (!allowed) {
-        return;
-    }
-
-
-    applyMenuPermissions();
-
-    applyButtonPermissions();
-
-    displayPermissionUser();
-
+    applyTopStoreMenuPermissions();
+    applyTopStoreButtonPermissions();
+    displayTopStoreUser();
+    setupTopStoreLogout();
 }
 
-
-/* =====================================================
-   START
-===================================================== */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initTopStorePermissions
-    );
-
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTopStorePermissions);
 } else {
-
     initTopStorePermissions();
-
 }
