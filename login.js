@@ -1,213 +1,398 @@
 "use strict";
 
-/*
-====================================================
- TOP STORE - LOGIN SYSTEM
- نظام تسجيل الدخول والصلاحيات
-====================================================
-*/
+/* ==========================================
+   TOP STORE - LOGIN SYSTEM
+   ========================================== */
 
 const USERS_KEY = "topStoreUsers";
 const CURRENT_USER_KEY = "topStoreCurrentUser";
 
+/* ------------------------------------------
+   الحصول على العناصر
+------------------------------------------ */
 
-/* ==================================================
-   المستخدمين الافتراضيين
-================================================== */
+const loginForm =
+    document.querySelector("#loginForm") ||
+    document.querySelector("form");
 
-const defaultUsers = [
+const usernameInput =
+    document.querySelector("#username") ||
+    document.querySelector("#usernameInput") ||
+    document.querySelector('input[name="username"]') ||
+    document.querySelector('input[type="text"]');
 
-    {
-        id: 1,
-        username: "admin",
-        password: "1234",
-        name: "المدير",
-        role: "manager",
+const passwordInput =
+    document.querySelector("#password") ||
+    document.querySelector("#passwordInput") ||
+    document.querySelector('input[name="password"]') ||
+    document.querySelector('input[type="password"]');
 
-        permissions: {
-            sales: true,
-            products: true,
-            returns: true,
-            maintenance: true,
-            accounts: true,
-            expenses: true,
-            reports: true,
-            users: true,
-            settings: true,
-            deleteReports: true
-        }
-    },
-
-    {
-        id: 2,
-        username: "employee",
-        password: "1234",
-        name: "الموظف",
-        role: "employee",
-
-        permissions: {
-            sales: true,
-            products: true,
-            returns: true,
-            maintenance: true,
-            accounts: false,
-            expenses: false,
-            reports: false,
-            users: false,
-            settings: false,
-            deleteReports: false
-        }
-    }
-
-];
+const loginButton =
+    document.querySelector("#loginButton") ||
+    document.querySelector("#loginBtn") ||
+    document.querySelector('button[type="submit"]');
 
 
-/* ==================================================
-   إنشاء المستخدمين أول مرة
-================================================== */
+/* ------------------------------------------
+   المستخدم الافتراضي
+------------------------------------------ */
 
-function initializeUsers() {
-
-    const savedUsers =
-        localStorage.getItem(
-            USERS_KEY
-        );
-
-
-    if (!savedUsers) {
-
-        localStorage.setItem(
-            USERS_KEY,
-            JSON.stringify(
-                defaultUsers
-            )
-        );
-
-    }
-
-}
+const defaultAdmin = {
+    id: "admin-default",
+    fullName: "مدير النظام",
+    username: "admin",
+    password: "1234",
+    role: "admin",
+    active: true,
+    createdAt: new Date().toISOString()
+};
 
 
-/* ==================================================
-   قراءة المستخدمين
-================================================== */
+/* ------------------------------------------
+   إنشاء مستخدمي النظام
+------------------------------------------ */
 
-function getUsers() {
+function loadUsers() {
+
+    let users = [];
 
     try {
 
-        const users =
-            JSON.parse(
-                localStorage.getItem(
-                    USERS_KEY
-                ) || "[]"
+        users = JSON.parse(
+            localStorage.getItem(USERS_KEY) || "[]"
+        );
+
+    } catch (error) {
+
+        users = [];
+
+    }
+
+    if (!Array.isArray(users)) {
+        users = [];
+    }
+
+    /*
+       لو مفيش مستخدمين
+       نضيف المدير الأساسي
+    */
+
+    if (users.length === 0) {
+
+        users.push(defaultAdmin);
+
+        localStorage.setItem(
+            USERS_KEY,
+            JSON.stringify(users)
+        );
+
+    }
+
+    /*
+       التأكد إن المدير الأساسي موجود
+    */
+
+    const adminExists = users.some(
+        user =>
+            String(user.username).toLowerCase() ===
+            "admin"
+    );
+
+    if (!adminExists) {
+
+        users.unshift(defaultAdmin);
+
+        localStorage.setItem(
+            USERS_KEY,
+            JSON.stringify(users)
+        );
+
+    }
+
+    return users;
+}
+
+
+/* ------------------------------------------
+   رسالة للمستخدم
+------------------------------------------ */
+
+function showLoginMessage(message, type = "error") {
+
+    let messageBox =
+        document.getElementById("loginMessage");
+
+    /*
+       لو الرسالة مش موجودة في HTML
+       ننشئها تلقائيًا
+    */
+
+    if (!messageBox) {
+
+        messageBox =
+            document.createElement("div");
+
+        messageBox.id =
+            "loginMessage";
+
+        messageBox.style.marginTop =
+            "12px";
+
+        messageBox.style.textAlign =
+            "center";
+
+        messageBox.style.fontSize =
+            "13px";
+
+        messageBox.style.fontWeight =
+            "bold";
+
+        if (loginForm) {
+
+            loginForm.appendChild(
+                messageBox
             );
 
+        } else if (loginButton) {
 
-        return Array.isArray(users)
-            ? users
-            : [];
+            loginButton.parentElement.appendChild(
+                messageBox
+            );
 
-    } catch {
+        } else {
 
-        return [];
+            document.body.appendChild(
+                messageBox
+            );
+
+        }
+
+    }
+
+    messageBox.textContent =
+        message;
+
+    if (type === "success") {
+
+        messageBox.style.color =
+            "#16a34a";
+
+    } else {
+
+        messageBox.style.color =
+            "#dc2626";
 
     }
 
 }
 
 
-/* ==================================================
-   LOGIN
-================================================== */
+/* ------------------------------------------
+   تسجيل الدخول
+------------------------------------------ */
 
-function login(username, password) {
+function login() {
+
+    if (!usernameInput || !passwordInput) {
+
+        alert(
+            "خطأ: لم يتم العثور على خانات تسجيل الدخول."
+        );
+
+        return;
+
+    }
+
+    const username =
+        usernameInput.value.trim();
+
+    const password =
+        passwordInput.value;
+
+    if (!username) {
+
+        showLoginMessage(
+            "اكتب اسم المستخدم"
+        );
+
+        usernameInput.focus();
+
+        return;
+
+    }
+
+    if (!password) {
+
+        showLoginMessage(
+            "اكتب كلمة المرور"
+        );
+
+        passwordInput.focus();
+
+        return;
+
+    }
+
 
     const users =
-        getUsers();
+        loadUsers();
 
+
+    /*
+       البحث عن المستخدم
+    */
 
     const user =
         users.find(
-            item =>
-                item.username ===
-                    username &&
-                item.password ===
-                    password
+            item => {
+
+                const savedUsername =
+                    String(
+                        item.username || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+                const enteredUsername =
+                    username
+                        .toLowerCase();
+
+                return (
+                    savedUsername ===
+                    enteredUsername
+                );
+
+            }
         );
 
 
+    /*
+       المستخدم غير موجود
+    */
+
     if (!user) {
 
-        return {
-            success: false,
-            message:
-                "اسم المستخدم أو كلمة المرور غير صحيحة"
-        };
+        showLoginMessage(
+            "اسم المستخدم أو كلمة المرور غير صحيحة"
+        );
+
+        passwordInput.value = "";
+
+        return;
 
     }
 
 
     /*
-     * حفظ المستخدم الحالي
-     */
+       الحساب متوقف
+    */
+
+    if (
+        user.active === false
+    ) {
+
+        showLoginMessage(
+            "هذا الحساب متوقف. تواصل مع المدير."
+        );
+
+        passwordInput.value = "";
+
+        return;
+
+    }
+
+
+    /*
+       التحقق من كلمة المرور
+    */
+
+    if (
+        String(user.password) !==
+        String(password)
+    ) {
+
+        showLoginMessage(
+            "اسم المستخدم أو كلمة المرور غير صحيحة"
+        );
+
+        passwordInput.value = "";
+
+        return;
+
+    }
+
+
+    /*
+       نجاح تسجيل الدخول
+    */
+
+    const currentUser = {
+
+        id:
+            user.id,
+
+        username:
+            user.username,
+
+        fullName:
+            user.fullName ||
+            user.name ||
+            user.username,
+
+        name:
+            user.fullName ||
+            user.name ||
+            user.username,
+
+        role:
+            user.role === "admin"
+                ? "admin"
+                : "employee",
+
+        active:
+            user.active !== false
+
+    };
+
+
+    /*
+       حفظ المستخدم الحالي
+    */
 
     localStorage.setItem(
         CURRENT_USER_KEY,
-        JSON.stringify({
-            id: user.id,
-            username: user.username,
-            name: user.name,
-            role: user.role,
-            permissions:
-                user.permissions
-        })
+        JSON.stringify(
+            currentUser
+        )
     );
 
 
-    return {
-        success: true,
-        user: user
-    };
+    showLoginMessage(
+        "تم تسجيل الدخول بنجاح ✓",
+        "success"
+    );
+
+
+    /*
+       الانتقال للوحة التحكم
+    */
+
+    setTimeout(
+        function () {
+
+            window.location.href =
+                "dashboard.html";
+
+        },
+        300
+    );
 
 }
 
 
-/* ==================================================
-   تشغيل النظام
-================================================== */
-
-initializeUsers();
-
-
-/* ==================================================
-   عناصر صفحة تسجيل الدخول
-================================================== */
-
-const loginForm =
-    document.getElementById(
-        "loginForm"
-    );
-
-const usernameInput =
-    document.getElementById(
-        "username"
-    );
-
-const passwordInput =
-    document.getElementById(
-        "password"
-    );
-
-const loginMessage =
-    document.getElementById(
-        "loginMessage"
-    );
-
-
-/* ==================================================
-   تسجيل الدخول
-================================================== */
+/* ------------------------------------------
+   تشغيل تسجيل الدخول
+------------------------------------------ */
 
 if (loginForm) {
 
@@ -217,68 +402,7 @@ if (loginForm) {
 
             event.preventDefault();
 
-
-            const username =
-                usernameInput
-                    ? usernameInput.value.trim()
-                    : "";
-
-            const password =
-                passwordInput
-                    ? passwordInput.value
-                    : "";
-
-
-            if (!username || !password) {
-
-                showLoginMessage(
-                    "اكتب اسم المستخدم وكلمة المرور",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const result =
-                login(
-                    username,
-                    password
-                );
-
-
-            if (!result.success) {
-
-                showLoginMessage(
-                    result.message,
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            showLoginMessage(
-                "تم تسجيل الدخول بنجاح ✓",
-                "success"
-            );
-
-
-            /*
-             * الانتقال للوحة التحكم
-             */
-
-            setTimeout(
-                function () {
-
-                    window.location.href =
-                        "dashboard.html";
-
-                },
-                500
-            );
+            login();
 
         }
     );
@@ -286,45 +410,61 @@ if (loginForm) {
 }
 
 
-/* ==================================================
-   رسالة تسجيل الدخول
-================================================== */
+if (loginButton) {
 
-function showLoginMessage(
-    message,
-    type
-) {
+    loginButton.addEventListener(
+        "click",
+        function (event) {
 
-    if (!loginMessage) {
+            /*
+               لو الزر داخل form
+               الـ submit هيشتغل لوحده
+            */
 
-        alert(message);
+            if (
+                !loginForm
+            ) {
 
-        return;
+                event.preventDefault();
 
-    }
+                login();
 
+            }
 
-    loginMessage.textContent =
-        message;
-
-
-    loginMessage.className =
-        "login-message " +
-        type;
+        }
+    );
 
 }
 
 
-/* ==================================================
-   تصدير الدوال
-================================================== */
+/* ------------------------------------------
+   Enter من الكيبورد
+------------------------------------------ */
 
-window.TOPSTORE_AUTH = {
+if (passwordInput) {
 
-    getUsers,
+    passwordInput.addEventListener(
+        "keydown",
+        function (event) {
 
-    login,
+            if (
+                event.key === "Enter"
+            ) {
 
-    initializeUsers
+                event.preventDefault();
 
-};
+                login();
+
+            }
+
+        }
+    );
+
+}
+
+
+/* ------------------------------------------
+   تشغيل المستخدمين
+------------------------------------------ */
+
+loadUsers();
