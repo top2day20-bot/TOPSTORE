@@ -18,15 +18,13 @@
 
 </head>
 
-
 <body>
 
 <div class="app">
 
-
-    <!-- ==============================
-         Sidebar
-         ============================== -->
+    <!-- ==========================================
+         SIDEBAR
+    =========================================== -->
 
     <aside class="sidebar" id="sidebar">
 
@@ -37,25 +35,30 @@
             </div>
 
             <div>
-
                 <strong>TOP STORE</strong>
 
-                <span>نظام إدارة المتجر</span>
-
+                <span>
+                    نظام إدارة المتجر
+                </span>
             </div>
 
         </div>
 
 
-        <nav class="menu">
+        <!-- ======================================
+             MENU
+        ======================================= -->
 
+        <nav class="menu">
 
             <a href="dashboard.html"
                class="menu-item active">
 
                 <span>🏠</span>
 
-                <span>الرئيسية</span>
+                <span>
+                    الرئيسية
+                </span>
 
             </a>
 
@@ -65,7 +68,9 @@
 
                 <span>🛒</span>
 
-                <span>المبيعات</span>
+                <span>
+                    المبيعات
+                </span>
 
             </a>
 
@@ -75,7 +80,9 @@
 
                 <span>📦</span>
 
-                <span>المنتجات والمخزن</span>
+                <span>
+                    المنتجات والمخزن
+                </span>
 
             </a>
 
@@ -85,7 +92,9 @@
 
                 <span>🔄</span>
 
-                <span>المرتجعات</span>
+                <span>
+                    المرتجعات
+                </span>
 
             </a>
 
@@ -95,7 +104,9 @@
 
                 <span>🔧</span>
 
-                <span>الصيانة</span>
+                <span>
+                    الصيانة
+                </span>
 
             </a>
 
@@ -110,7 +121,9 @@
 
                 <span>💰</span>
 
-                <span>الحسابات</span>
+                <span>
+                    الحسابات
+                </span>
 
             </a>
 
@@ -120,7 +133,9 @@
 
                 <span>💸</span>
 
-                <span>المصروفات</span>
+                <span>
+                    المصروفات
+                </span>
 
             </a>
 
@@ -135,7 +150,9 @@
 
                 <span>📊</span>
 
-                <span>التقارير</span>
+                <span>
+                    التقارير
+                </span>
 
             </a>
 
@@ -145,20 +162,29 @@
 
                 <span>👥</span>
 
-                <span>المستخدمين</span>
+                <span>
+                    المستخدمين
+                </span>
 
             </a>
-
 
         </nav>
 
 
+        <!-- ======================================
+             LOGOUT
+        ======================================= -->
+
         <div class="sidebar-bottom">
 
-            <button id="logoutButton"
-                    class="logout-button">
+            <button
+                id="logoutButton"
+                class="logout-button"
+                type="button">
 
-                🚪
+                <span>
+                    🚪
+                </span>
 
                 <span>
                     تسجيل الخروج
@@ -171,21 +197,23 @@
     </aside>
 
 
-
-    <!-- ==============================
-         Main
-         ============================== -->
+    <!-- ==========================================
+         MAIN
+    =========================================== -->
 
     <main class="main">
 
 
-        <!-- Header -->
+        <!-- ======================================
+             HEADER
+        ======================================= -->
 
         <header class="header">
 
             <button
                 id="menuButton"
-                class="menu-button">
+                class="menu-button"
+                type="button">
 
                 ☰
 
@@ -205,23 +233,29 @@
             </div>
 
 
+            <!-- USER -->
+
             <div class="user-area">
 
                 <div class="user-info">
 
                     <strong id="usernameDisplay">
-                        admin
+                        المستخدم
                     </strong>
 
-                    <span>
-                        المدير
+                    <span id="roleDisplay">
+                        المستخدم
                     </span>
 
                 </div>
 
 
-                <div class="user-avatar">
-                    A
+                <div
+                    class="user-avatar"
+                    id="userAvatar">
+
+                    U
+
                 </div>
 
             </div>
@@ -229,13 +263,16 @@
         </header>
 
 
-
-        <!-- Content -->
+        <!-- ======================================
+             CONTENT
+        ======================================= -->
 
         <section class="content">
 
 
-            <!-- Welcome -->
+            <!-- ==================================
+                 WELCOME
+            =================================== -->
 
             <div class="welcome-card">
 
@@ -246,11 +283,13 @@
                     </h2>
 
                     <p>
-                        من هنا يمكنك إدارة المبيعات
-                        والمخزن والصيانة والحسابات.
+                        من هنا يمكنك إدارة
+                        المبيعات والمخزن
+                        والصيانة والحسابات.
                     </p>
 
                 </div>
+
 
                 <div class="welcome-icon">
                     🏪
@@ -259,11 +298,14 @@
             </div>
 
 
-
-            <!-- Statistics -->
+            <!-- ==================================
+                 STATISTICS
+            =================================== -->
 
             <div class="stats-grid">
 
+
+                <!-- SALES -->
 
                 <div class="stat-card">
 
@@ -277,7 +319,7 @@
                             مبيعات اليوم
                         </span>
 
-                        <strong>
+                        <strong id="todaySales">
                             0 ج.م
                         </strong>
 
@@ -285,6 +327,8 @@
 
                 </div>
 
+
+                <!-- PROFITS -->
 
                 <div class="stat-card">
 
@@ -298,7 +342,7 @@
                             الأرباح
                         </span>
 
-                        <strong>
+                        <strong id="todayProfit">
                             0 ج.م
                         </strong>
 
@@ -306,6 +350,8 @@
 
                 </div>
 
+
+                <!-- PRODUCTS -->
 
                 <div class="stat-card">
 
@@ -319,7 +365,7 @@
                             المنتجات
                         </span>
 
-                        <strong>
+                        <strong id="productsCount">
                             0
                         </strong>
 
@@ -327,6 +373,8 @@
 
                 </div>
 
+
+                <!-- LOW STOCK -->
 
                 <div class="stat-card">
 
@@ -340,7 +388,7 @@
                             منتجات ناقصة
                         </span>
 
-                        <strong>
+                        <strong id="lowStockCount">
                             0
                         </strong>
 
@@ -351,8 +399,9 @@
             </div>
 
 
-
-            <!-- Quick Actions -->
+            <!-- ==================================
+                 QUICK ACTIONS
+            =================================== -->
 
             <div class="section-header">
 
@@ -374,6 +423,8 @@
             <div class="quick-grid">
 
 
+                <!-- NEW SALE -->
+
                 <a href="sales.html"
                    class="quick-card">
 
@@ -392,6 +443,8 @@
                 </a>
 
 
+                <!-- PRODUCTS -->
+
                 <a href="products.html"
                    class="quick-card">
 
@@ -400,15 +453,17 @@
                     </span>
 
                     <strong>
-                        إضافة منتج
+                        المنتجات والمخزن
                     </strong>
 
                     <small>
-                        إضافة منتج للمخزن
+                        إدارة المنتجات والمخزون
                     </small>
 
                 </a>
 
+
+                <!-- MAINTENANCE -->
 
                 <a href="maintenance.html"
                    class="quick-card">
@@ -427,6 +482,8 @@
 
                 </a>
 
+
+                <!-- EXPENSES -->
 
                 <a href="expenses.html"
                    class="quick-card">
@@ -448,8 +505,9 @@
             </div>
 
 
-
-            <!-- Activity -->
+            <!-- ==================================
+                 ACTIVITY
+            =================================== -->
 
             <div class="section-header">
 
@@ -468,7 +526,9 @@
             </div>
 
 
-            <div class="empty-card">
+            <div
+                class="empty-card"
+                id="activityContainer">
 
                 <div class="empty-icon">
                     📋
@@ -488,13 +548,21 @@
 
         </section>
 
-
     </main>
 
 </div>
 
 
+<!-- ==========================================
+     SCRIPTS
+=========================================== -->
+
+<!-- الصلاحيات أولاً -->
+<script src="permissions.js"></script>
+
+<!-- dashboard بعد الصلاحيات -->
 <script src="dashboard.js"></script>
+
 
 </body>
 
