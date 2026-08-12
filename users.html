@@ -1,446 +1,63 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>TOP STORE | المستخدمين</title>
-
-    <link rel="stylesheet" href="users.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOP STORE | المستخدمين والصلاحيات</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;font-family:Arial,Tahoma,sans-serif;color:#172033}.page{max-width:1200px;margin:auto;padding:20px}.top,.card{background:#fff;border-radius:18px;box-shadow:0 8px 25px #0000000d;padding:20px;margin-bottom:20px}.top{display:flex;justify-content:space-between;gap:15px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}label{font-weight:bold;display:block;margin-bottom:7px}input{width:100%;padding:12px;border:1px solid #d8dee9;border-radius:10px}.permissions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.permissions label{font-weight:normal;background:#f6f8fb;padding:10px;border-radius:9px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}button{border:0;border-radius:10px;padding:11px 16px;font-weight:bold;cursor:pointer}.primary{background:#159bd7;color:#fff}.danger{background:#ef4444;color:#fff}.back{background:#e8eef5}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:12px;border-bottom:1px solid #edf0f5;text-align:right;white-space:nowrap}.role{font-weight:bold}.hint{color:#667085}@media(max-width:700px){.grid,.permissions{grid-template-columns:1fr}.top{flex-direction:column}}
+</style>
 </head>
-
 <body>
-
-<div class="app">
-
-    <!-- ================= SIDEBAR ================= -->
-
-    <aside class="sidebar">
-
-        <div class="logo">
-
-            <div class="logo-icon">
-                TS
-            </div>
-
-            <div>
-                <strong>TOP STORE</strong>
-                <span>نظام إدارة المتجر</span>
-            </div>
-
-        </div>
-
-
-        <nav class="menu">
-
-            <a href="dashboard.html" class="menu-item">
-                🏠
-                <span>الرئيسية</span>
-            </a>
-
-            <a href="sales.html" class="menu-item">
-                🛒
-                <span>المبيعات</span>
-            </a>
-
-            <a href="products.html" class="menu-item">
-                📦
-                <span>المخزن</span>
-            </a>
-
-            <a href="returns.html" class="menu-item">
-                🔄
-                <span>المرتجعات</span>
-            </a>
-
-            <a href="maintenance.html" class="menu-item">
-                🔧
-                <span>الصيانة</span>
-            </a>
-
-            <a href="accounts.html" class="menu-item">
-                💰
-                <span>الحسابات</span>
-            </a>
-
-            <a href="expenses.html" class="menu-item">
-                💸
-                <span>المصروفات</span>
-            </a>
-
-            <a href="reports.html" class="menu-item">
-                📊
-                <span>التقارير</span>
-            </a>
-
-            <a href="users.html" class="menu-item active">
-                👥
-                <span>المستخدمين</span>
-            </a>
-
-        </nav>
-
-
-        <div class="sidebar-bottom">
-
-            <button
-                id="logoutButton"
-                class="logout-button">
-
-                🚪 تسجيل الخروج
-
-            </button>
-
-        </div>
-
-    </aside>
-
-
-    <!-- ================= MAIN ================= -->
-
-    <main class="main">
-
-        <header class="header">
-
-            <div>
-
-                <h1>
-                    إدارة المستخدمين
-                </h1>
-
-                <p>
-                    إدارة الموظفين وصلاحيات الدخول
-                </p>
-
-            </div>
-
-
-            <div class="user-box">
-
-                <strong id="usernameDisplay">
-                    المستخدم
-                </strong>
-
-                <span id="roleDisplay">
-                    -
-                </span>
-
-            </div>
-
-        </header>
-
-
-        <section class="content">
-
-
-            <!-- ================= SUMMARY ================= -->
-
-            <div class="summary-grid">
-
-                <div class="summary-card">
-
-                    <span>
-                        👥 إجمالي المستخدمين
-                    </span>
-
-                    <strong id="totalUsers">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="summary-card">
-
-                    <span>
-                        👑 المديرين
-                    </span>
-
-                    <strong id="totalAdmins">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="summary-card">
-
-                    <span>
-                        👨‍💼 الموظفين
-                    </span>
-
-                    <strong id="totalEmployees">
-                        0
-                    </strong>
-
-                </div>
-
-
-                <div class="summary-card">
-
-                    <span>
-                        🟢 المستخدمين النشطين
-                    </span>
-
-                    <strong id="activeUsers">
-                        0
-                    </strong>
-
-                </div>
-
-            </div>
-
-
-            <!-- ================= ACTIONS ================= -->
-
-            <div class="actions">
-
-                <button
-                    id="addUserButton"
-                    class="primary-button">
-
-                    ➕ إضافة مستخدم
-
-                </button>
-
-
-                <input
-                    type="search"
-                    id="userSearch"
-                    placeholder="🔎 البحث عن مستخدم...">
-
-            </div>
-
-
-            <!-- ================= USERS TABLE ================= -->
-
-            <div class="panel">
-
-                <div class="panel-header">
-
-                    <div>
-
-                        <h2>
-                            المستخدمين
-                        </h2>
-
-                        <p>
-                            جميع حسابات النظام
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    الاسم
-                                </th>
-
-                                <th>
-                                    اسم المستخدم
-                                </th>
-
-                                <th>
-                                    الصلاحية
-                                </th>
-
-                                <th>
-                                    الحالة
-                                </th>
-
-                                <th>
-                                    تاريخ الإضافة
-                                </th>
-
-                                <th>
-                                    الإجراءات
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="usersBody">
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
+<div class="page">
+
+<div class="top">
+<div><h1>👥 المستخدمين والصلاحيات</h1><p>المدير يستطيع تحديد صلاحيات كل موظف.</p></div>
+<div><span id="usernameDisplay">المستخدم</span> - <span id="roleDisplay">الموظف</span></div>
 </div>
 
+<div class="card">
+<h2>إضافة مستخدم</h2>
+<p class="hint">لا يمكن تعديل صلاحيات المدير من هنا؛ المدير له كل الصلاحيات.</p>
 
-<!-- ================= USER MODAL ================= -->
-
-<div
-    id="userModal"
-    class="modal">
-
-    <div class="modal-box">
-
-        <div class="modal-header">
-
-            <h2 id="modalTitle">
-                إضافة مستخدم
-            </h2>
-
-            <button
-                id="closeModal"
-                class="close-button">
-
-                ×
-
-            </button>
-
-        </div>
-
-
-        <form id="userForm">
-
-            <input
-                type="hidden"
-                id="userId">
-
-
-            <div class="form-group">
-
-                <label>
-                    اسم الموظف
-                </label>
-
-                <input
-                    type="text"
-                    id="fullName"
-                    placeholder="مثال: أحمد محمد"
-                    required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    اسم المستخدم
-                </label>
-
-                <input
-                    type="text"
-                    id="username"
-                    placeholder="مثال: ahmed"
-                    required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    كلمة المرور
-                </label>
-
-                <input
-                    type="password"
-                    id="password"
-                    placeholder="كلمة المرور"
-                    required>
-
-            </div>
-
-
-            <div class="form-group">
-
-                <label>
-                    الصلاحية
-                </label>
-
-                <select id="role">
-
-                    <option value="employee">
-                        موظف
-                    </option>
-
-                    <option value="admin">
-                        مدير
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="form-group checkbox-group">
-
-                <label>
-
-                    <input
-                        type="checkbox"
-                        id="isActive"
-                        checked>
-
-                    المستخدم نشط
-
-                </label>
-
-            </div>
-
-
-            <div class="modal-actions">
-
-                <button
-                    type="submit"
-                    class="primary-button">
-
-                    💾 حفظ المستخدم
-
-                </button>
-
-
-                <button
-                    type="button"
-                    id="cancelButton"
-                    class="cancel-button">
-
-                    إلغاء
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
+<form id="userForm">
+<div class="grid">
+<div><label>اسم المستخدم</label><input id="newUsername" required></div>
+<div><label>اسم الموظف</label><input id="newName" required></div>
+<div><label>كلمة المرور</label><input id="newPassword" type="password" required></div>
 </div>
 
-
-<!-- ================= TOAST ================= -->
-
-<div
-    id="toast"
-    class="toast">
+<div class="permissions">
+<label><input type="checkbox" name="perm" value="sales" checked> المبيعات</label>
+<label><input type="checkbox" name="perm" value="products" checked> المنتجات والمخزن</label>
+<label><input type="checkbox" name="perm" value="returns" checked> المرتجعات</label>
+<label><input type="checkbox" name="perm" value="maintenance" checked> الصيانة</label>
+<label><input type="checkbox" name="perm" value="accounts"> الحسابات</label>
+<label><input type="checkbox" name="perm" value="expenses"> المصروفات</label>
+<label><input type="checkbox" name="perm" value="reports"> التقارير</label>
+<label><input type="checkbox" name="perm" value="users"> المستخدمين</label>
 </div>
 
+<div class="actions">
+<button class="primary" type="submit">➕ إضافة المستخدم</button>
+<button class="back" type="button" onclick="location.href='dashboard.html'">🏠 الرئيسية</button>
+<button class="danger" id="logoutButton" type="button">🚪 تسجيل الخروج</button>
+</div>
+</form>
+</div>
 
+<div class="card">
+<h2>المستخدمون الحاليون</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>المستخدم</th><th>الاسم</th><th>الدور</th><th>الصلاحيات</th><th>الحالة</th><th>إجراء</th></tr></thead>
+<tbody id="usersTable"></tbody>
+</table>
+</div>
+</div>
+
+</div>
+<script src="permissions.js"></script>
 <script src="users.js"></script>
-
 </body>
-
 </html>

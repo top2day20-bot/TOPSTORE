@@ -1,1159 +1,192 @@
+/* TOP STORE - Users & Permissions */
 "use strict";
 
-/*
-====================================================
- TOP STORE
- USERS SYSTEM
-====================================================
-*/
+const USERS_KEY = "topStoreUsers";
 
-const USERS_KEY =
-    "topStoreUsers";
-
-
-let users = [];
-
-let editingUserId = null;
-
-
-/* ==================================================
-   ELEMENTS
-================================================== */
-
-const userModal =
-    document.getElementById(
-        "userModal"
-    );
-
-const userForm =
-    document.getElementById(
-        "userForm"
-    );
-
-const usersBody =
-    document.getElementById(
-        "usersBody"
-    );
-
-const userSearch =
-    document.getElementById(
-        "userSearch"
-    );
-
-
-/* ==================================================
-   DEFAULT ADMIN
-================================================== */
-
-const defaultAdmin = {
-
-    id: "admin-default",
-
-    fullName: "مدير النظام",
-
+const DEFAULT_ADMIN = {
     username: "admin",
-
+    name: "المدير",
     password: "1234",
-
     role: "admin",
-
     active: true,
-
-    createdAt:
-        new Date().toISOString()
-
+    permissions: {
+        dashboard:true,sales:true,products:true,returns:true,
+        maintenance:true,accounts:true,expenses:true,reports:true,users:true
+    }
 };
 
+const PERMISSION_NAMES = {
+    sales:"المبيعات",
+    products:"المنتجات والمخزن",
+    returns:"المرتجعات",
+    maintenance:"الصيانة",
+    accounts:"الحسابات",
+    expenses:"المصروفات",
+    reports:"التقارير",
+    users:"المستخدمين"
+};
 
-/* ==================================================
-   LOAD USERS
-================================================== */
-
-function loadUsers() {
-
+function getUsers() {
     try {
+        const data = localStorage.getItem(USERS_KEY);
+        const users = data ? JSON.parse(data) : [];
 
-        users =
-            JSON.parse(
-                localStorage.getItem(
-                    USERS_KEY
-                ) || "[]"
-            );
+        if (!Array.isArray(users)) return [DEFAULT_ADMIN];
 
-    } catch {
+        if (!users.some(u => String(u.username).toLowerCase() === "admin")) {
+            users.unshift(DEFAULT_ADMIN);
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
 
-        users = [];
-
+        return users;
+    } catch (e) {
+        localStorage.setItem(USERS_KEY, JSON.stringify([DEFAULT_ADMIN]));
+        return [DEFAULT_ADMIN];
     }
-
-
-    if (!Array.isArray(users)) {
-
-        users = [];
-
-    }
-
-
-    /*
-    لو مفيش أي مستخدمين
-    نضيف المدير الافتراضي
-    */
-
-    if (users.length === 0) {
-
-        users = [
-            defaultAdmin
-        ];
-
-        saveUsers();
-
-    }
-
-
-    /*
-    التأكد إن admin موجود
-    */
-
-    const adminExists =
-        users.some(
-            user =>
-                user.username ===
-                "admin"
-        );
-
-
-    if (!adminExists) {
-
-        users.unshift(
-            defaultAdmin
-        );
-
-        saveUsers();
-
-    }
-
 }
 
-
-/* ==================================================
-   SAVE
-================================================== */
-
-function saveUsers() {
-
-    localStorage.setItem(
-        USERS_KEY,
-        JSON.stringify(
-            users
-        )
-    );
-
+function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
-
-
-/* ==================================================
-   CURRENT USER
-================================================== */
-
-function getCurrentUser() {
-
-    try {
-
-        return JSON.parse(
-            localStorage.getItem(
-                "topStoreCurrentUser"
-            )
-        );
-
-    } catch {
-
-        return null;
-
-    }
-
-}
-
-
-/* ==================================================
-   MONEY
-================================================== */
-
-function escapeHtml(value) {
-
-    return String(
-        value ?? ""
-    )
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
-}
-
-
-/* ==================================================
-   DATE
-================================================== */
-
-function formatDate(date) {
-
-    if (!date) {
-        return "-";
-    }
-
-
-    const d =
-        new Date(date);
-
-
-    if (
-        Number.isNaN(
-            d.getTime()
-        )
-    ) {
-
-        return "-";
-
-    }
-
-
-    return d.toLocaleDateString(
-        "ar-EG"
-    );
-
-}
-
-
-/* ==================================================
-   SUMMARY
-================================================== */
-
-function updateSummary() {
-
-    const total =
-        users.length;
-
-
-    const admins =
-        users.filter(
-            user =>
-                user.role ===
-                "admin"
-        ).length;
-
-
-    const employees =
-        users.filter(
-            user =>
-                user.role ===
-                "employee"
-        ).length;
-
-
-    const active =
-        users.filter(
-            user =>
-                user.active !== false
-        ).length;
-
-
-    document.getElementById(
-        "totalUsers"
-    ).textContent =
-        total;
-
-
-    document.getElementById(
-        "totalAdmins"
-    ).textContent =
-        admins;
-
-
-    document.getElementById(
-        "totalEmployees"
-    ).textContent =
-        employees;
-
-
-    document.getElementById(
-        "activeUsers"
-    ).textContent =
-        active;
-
-}
-
-
-/* ==================================================
-   RENDER
-================================================== */
 
 function renderUsers() {
+    const tbody = document.getElementById("usersTable");
+    if (!tbody) return;
 
-    const search =
-        userSearch
-            ? userSearch.value
-                .trim()
-                .toLowerCase()
-            : "";
+    const users = getUsers();
+    tbody.innerHTML = "";
 
+    users.forEach((user, index) => {
+        const isAdmin = String(user.role).toLowerCase() === "admin";
+        const permissions = isAdmin
+            ? "كل الصلاحيات"
+            : Object.keys(user.permissions || {})
+                .filter(k => user.permissions[k] && PERMISSION_NAMES[k])
+                .map(k => PERMISSION_NAMES[k])
+                .join("، ") || "لا توجد";
 
-    const list =
-        users.filter(
-            user => {
-
-                const text =
-                    (
-                        user.fullName +
-                        " " +
-                        user.username +
-                        " " +
-                        user.role
-                    ).toLowerCase();
-
-
-                return (
-                    !search ||
-                    text.includes(
-                        search
-                    )
-                );
-
-            }
-        );
-
-
-    if (list.length === 0) {
-
-        usersBody.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="6"
-                    style="
-                        padding:45px;
-                        color:#94a3b8;
-                    ">
-
-                    لا يوجد مستخدمون
-
-                </td>
-
-            </tr>
-
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${escapeHTML(user.username)}</td>
+            <td>${escapeHTML(user.name || user.fullName || "")}</td>
+            <td class="role">${isAdmin ? "المدير" : "الموظف"}</td>
+            <td>${escapeHTML(permissions)}</td>
+            <td>${user.active === false ? "متوقف" : "نشط"}</td>
+            <td>
+                ${isAdmin
+                    ? "—"
+                    : `<button class="primary" onclick="editUser(${index})">تعديل</button>
+                       <button class="danger" onclick="deleteUser(${index})">حذف</button>`
+                }
+            </td>
         `;
-
-        return;
-
-    }
-
-
-    usersBody.innerHTML =
-        list.map(
-            user => {
-
-                const role =
-                    user.role ===
-                    "admin"
-                        ? "مدير"
-                        : "موظف";
-
-
-                const roleClass =
-                    user.role ===
-                    "admin"
-                        ? "role-admin"
-                        : "role-employee";
-
-
-                const active =
-                    user.active !==
-                    false;
-
-
-                return `
-
-                    <tr>
-
-                        <td>
-
-                            <strong>
-                                ${
-                                    escapeHtml(
-                                        user.fullName
-                                    )
-                                }
-                            </strong>
-
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                escapeHtml(
-                                    user.username
-                                )
-                            }
-
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="role-badge ${roleClass}">
-
-                                ${role}
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            <span
-                                class="
-                                    status-badge
-                                    ${
-                                        active
-                                            ? "status-active"
-                                            : "status-inactive"
-                                    }
-                                ">
-
-                                ${
-                                    active
-                                        ? "نشط"
-                                        : "متوقف"
-                                }
-
-                            </span>
-
-                        </td>
-
-
-                        <td>
-
-                            ${
-                                formatDate(
-                                    user.createdAt
-                                )
-                            }
-
-                        </td>
-
-
-                        <td>
-
-                            <div
-                                class="action-buttons">
-
-                                <button
-                                    class="
-                                        action-button
-                                        edit-button
-                                    "
-                                    onclick="editUser('${user.id}')">
-
-                                    ✏️
-
-                                </button>
-
-
-                                <button
-                                    class="
-                                        action-button
-                                        toggle-button
-                                    "
-                                    onclick="toggleUser('${user.id}')">
-
-                                    ${
-                                        active
-                                            ? "⏸️"
-                                            : "▶️"
-                                    }
-
-                                </button>
-
-
-                                <button
-                                    class="
-                                        action-button
-                                        delete-button
-                                    "
-                                    onclick="deleteUser('${user.id}')">
-
-                                    🗑️
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                `;
-
-            }
-        )
-        .join("");
-
+        tbody.appendChild(tr);
+    });
 }
 
+function escapeHTML(value) {
+    return String(value ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
 
-/* ==================================================
-   OPEN ADD
-================================================== */
+function editUser(index) {
+    const users = getUsers();
+    const user = users[index];
+    if (!user || user.role === "admin") return;
 
-document.getElementById(
-    "addUserButton"
-).addEventListener(
-    "click",
-    function () {
+    const checks = document.querySelectorAll('input[name="perm"]');
+    checks.forEach(c => {
+        c.checked = user.permissions?.[c.value] === true;
+    });
 
-        editingUserId =
-            null;
+    document.getElementById("newUsername").value = user.username || "";
+    document.getElementById("newName").value = user.name || "";
+    document.getElementById("newPassword").value = user.password || "";
 
+    document.getElementById("userForm").dataset.editIndex = String(index);
+    window.scrollTo({top:0, behavior:"smooth"});
+}
 
-        document.getElementById(
-            "modalTitle"
-        ).textContent =
-            "إضافة مستخدم";
+function deleteUser(index) {
+    const users = getUsers();
+    if (!users[index] || users[index].role === "admin") return;
 
+    if (!confirm("هل تريد حذف هذا المستخدم؟")) return;
 
-        userForm.reset();
+    users.splice(index, 1);
+    saveUsers(users);
+    renderUsers();
+}
 
+function initUsers() {
+    if (!TOPSTORE.hasPermission("users")) return;
 
-        document.getElementById(
-            "isActive"
-        ).checked =
-            true;
+    const form = document.getElementById("userForm");
 
+    form.addEventListener("submit", e => {
+        e.preventDefault();
 
-        document.getElementById(
-            "password"
-        ).required =
-            true;
+        const users = getUsers();
+        const username = document.getElementById("newUsername").value.trim();
+        const name = document.getElementById("newName").value.trim();
+        const password = document.getElementById("newPassword").value;
 
-
-        userModal.classList.add(
-            "show"
+        const editIndex = form.dataset.editIndex;
+        const existingIndex = users.findIndex(
+            u => String(u.username).toLowerCase() === username.toLowerCase()
         );
 
-    }
-);
-
-
-/* ==================================================
-   CLOSE
-================================================== */
-
-function closeModal() {
-
-    userModal.classList.remove(
-        "show"
-    );
-
-
-    editingUserId =
-        null;
-
-
-    userForm.reset();
-
-}
-
-
-document.getElementById(
-    "closeModal"
-).addEventListener(
-    "click",
-    closeModal
-);
-
-
-document.getElementById(
-    "cancelButton"
-).addEventListener(
-    "click",
-    closeModal
-);
-
-
-/* ==================================================
-   EDIT
-================================================== */
-
-function editUser(id) {
-
-    const user =
-        users.find(
-            item =>
-                String(item.id) ===
-                String(id)
-        );
-
-
-    if (!user) {
-        return;
-    }
-
-
-    editingUserId =
-        id;
-
-
-    document.getElementById(
-        "modalTitle"
-    ).textContent =
-        "تعديل المستخدم";
-
-
-    document.getElementById(
-        "userId"
-    ).value =
-        user.id;
-
-
-    document.getElementById(
-        "fullName"
-    ).value =
-        user.fullName;
-
-
-    document.getElementById(
-        "username"
-    ).value =
-        user.username;
-
-
-    document.getElementById(
-        "password"
-    ).value =
-        "";
-
-
-    document.getElementById(
-        "password"
-    ).required =
-        false;
-
-
-    document.getElementById(
-        "role"
-    ).value =
-        user.role;
-
-
-    document.getElementById(
-        "isActive"
-    ).checked =
-        user.active !== false;
-
-
-    userModal.classList.add(
-        "show"
-    );
-
-}
-
-
-/* ==================================================
-   SAVE USER
-================================================== */
-
-userForm.addEventListener(
-    "submit",
-    function (event) {
-
-        event.preventDefault();
-
-
-        const fullName =
-            document.getElementById(
-                "fullName"
-            ).value.trim();
-
-
-        const username =
-            document.getElementById(
-                "username"
-            ).value.trim();
-
-
-        const password =
-            document.getElementById(
-                "password"
-            ).value;
-
-
-        const role =
-            document.getElementById(
-                "role"
-            ).value;
-
-
-        const active =
-            document.getElementById(
-                "isActive"
-            ).checked;
-
-
-        if (
-            !fullName ||
-            !username
-        ) {
-
-            showToast(
-                "أكمل بيانات المستخدم"
-            );
-
+        if (existingIndex !== -1 &&
+            String(existingIndex) !== String(editIndex)) {
+            alert("اسم المستخدم موجود بالفعل.");
             return;
-
         }
 
+        const permissions = {
+            dashboard: true
+        };
 
-        /*
-        منع تكرار اسم المستخدم
-        */
+        document.querySelectorAll('input[name="perm"]').forEach(check => {
+            permissions[check.value] = check.checked;
+        });
 
-        const duplicate =
-            users.some(
-                user =>
-                    user.username
-                        .toLowerCase() ===
-                    username.toLowerCase() &&
-                    String(user.id) !==
-                    String(editingUserId)
-            );
-
-
-        if (duplicate) {
-
-            showToast(
-                "اسم المستخدم موجود بالفعل"
-            );
-
-            return;
-
-        }
-
-
-        /* ================= EDIT ================= */
-
-        if (editingUserId) {
-
-            const user =
-                users.find(
-                    item =>
-                        String(item.id) ===
-                        String(editingUserId)
-                );
-
-
-            if (!user) {
-                return;
-            }
-
-
-            user.fullName =
-                fullName;
-
-
-            user.username =
-                username;
-
-
-            user.role =
-                role;
-
-
-            user.active =
-                active;
-
-
-            /*
-            لو كتب باسورد جديد
-            */
-
-            if (password) {
-
-                user.password =
-                    password;
-
-            }
-
-
-            showToast(
-                "تم تعديل المستخدم ✓"
-            );
-
-        }
-
-
-        /* ================= ADD ================= */
-
-        else {
-
-            if (!password) {
-
-                showToast(
-                    "اكتب كلمة المرور"
-                );
-
-                return;
-
-            }
-
-
-            users.push({
-
-                id:
-                    Date.now()
-                    .toString(),
-
-                fullName,
-
+        if (editIndex !== undefined && editIndex !== "") {
+            const index = Number(editIndex);
+            users[index] = {
+                ...users[index],
                 username,
-
+                name,
                 password,
-
-                role,
-
-                active,
-
-                createdAt:
-                    new Date()
-                        .toISOString()
-
+                role: "employee",
+                active: true,
+                permissions
+            };
+            delete form.dataset.editIndex;
+            alert("تم تعديل صلاحيات المستخدم بنجاح ✅");
+        } else {
+            users.push({
+                username,
+                name,
+                password,
+                role: "employee",
+                active: true,
+                permissions
             });
-
-
-            showToast(
-                "تم إضافة المستخدم ✓"
-            );
-
+            alert("تم إضافة المستخدم بنجاح ✅");
         }
 
-
-        saveUsers();
-
-
-        closeModal();
-
-
-        renderAll();
-
-    }
-);
-
-
-/* ==================================================
-   DELETE
-================================================== */
-
-function deleteUser(id) {
-
-    const user =
-        users.find(
-            item =>
-                String(item.id) ===
-                String(id)
-        );
-
-
-    if (!user) {
-        return;
-    }
-
-
-    /*
-    منع حذف المدير الافتراضي
-    */
-
-    if (
-        user.id ===
-        "admin-default"
-    ) {
-
-        showToast(
-            "لا يمكن حذف مدير النظام الأساسي"
-        );
-
-        return;
-
-    }
-
-
-    /*
-    منع حذف آخر مدير
-    */
-
-    if (
-        user.role ===
-        "admin"
-    ) {
-
-        const adminCount =
-            users.filter(
-                item =>
-                    item.role ===
-                    "admin"
-            ).length;
-
-
-        if (
-            adminCount <= 1
-        ) {
-
-            showToast(
-                "لا يمكن حذف آخر مدير في النظام"
-            );
-
-            return;
-
-        }
-
-    }
-
-
-    const confirmed =
-        confirm(
-            `هل تريد حذف المستخدم "${user.fullName}"؟`
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    users =
-        users.filter(
-            item =>
-                String(item.id) !==
-                String(id)
-        );
-
-
-    saveUsers();
-
-
-    renderAll();
-
-
-    showToast(
-        "تم حذف المستخدم ✓"
-    );
-
-}
-
-
-/* ==================================================
-   TOGGLE USER
-================================================== */
-
-function toggleUser(id) {
-
-    const user =
-        users.find(
-            item =>
-                String(item.id) ===
-                String(id)
-        );
-
-
-    if (!user) {
-        return;
-    }
-
-
-    if (
-        user.id ===
-        "admin-default"
-    ) {
-
-        showToast(
-            "لا يمكن إيقاف مدير النظام الأساسي"
-        );
-
-        return;
-
-    }
-
-
-    user.active =
-        user.active === false;
-
-
-    saveUsers();
-
-
-    renderAll();
-
-
-    showToast(
-        user.active
-            ? "تم تفعيل المستخدم ✓"
-            : "تم إيقاف المستخدم"
-    );
-
-}
-
-
-/* ==================================================
-   SEARCH
-================================================== */
-
-if (userSearch) {
-
-    userSearch.addEventListener(
-        "input",
-        renderUsers
-    );
-
-}
-
-
-/* ==================================================
-   LOGOUT
-================================================== */
-
-const logoutButton =
-    document.getElementById(
-        "logoutButton"
-    );
-
-
-if (logoutButton) {
-
-    logoutButton.addEventListener(
-        "click",
-        function () {
-
-            localStorage.removeItem(
-                "topStoreCurrentUser"
-            );
-
-            window.location.href =
-                "index.html";
-
-        }
-    );
-
-}
-
-
-/* ==================================================
-   DISPLAY CURRENT USER
-================================================== */
-
-function displayCurrentUser() {
-
-    const user =
-        getCurrentUser();
-
-
-    if (!user) {
-        return;
-    }
-
-
-    document.getElementById(
-        "usernameDisplay"
-    ).textContent =
-        user.name ||
-        user.fullName ||
-        user.username ||
-        "المستخدم";
-
-
-    document.getElementById(
-        "roleDisplay"
-    ).textContent =
-        user.role ===
-        "admin"
-            ? "مدير"
-            : "موظف";
-
-}
-
-
-/* ==================================================
-   TOAST
-================================================== */
-
-function showToast(
-    message
-) {
-
-    const toast =
-        document.getElementById(
-            "toast"
-        );
-
-
-    toast.textContent =
-        message;
-
-
-    toast.classList.add(
-        "show"
-    );
-
-
-    setTimeout(
-        function () {
-
-            toast.classList.remove(
-                "show"
-            );
-
-        },
-        2500
-    );
-
-}
-
-
-/* ==================================================
-   RENDER ALL
-================================================== */
-
-function renderAll() {
-
-    updateSummary();
+        saveUsers(users);
+        form.reset();
+        renderUsers();
+    });
 
     renderUsers();
-
-    displayCurrentUser();
-
 }
 
-
-/* ==================================================
-   START
-================================================== */
-
-loadUsers();
-
-renderAll();
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initUsers);
+} else {
+    initUsers();
+}
