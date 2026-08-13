@@ -1,310 +1,197 @@
-/* =========================================================
-   TOP STORE - permissions.js
-   نظام الصلاحيات المركزي
-========================================================= */
-
+/* TOP STORE - STRICT FRONT-END PERMISSIONS
+   ملاحظة: هذا يمنع التجاوز العادي من صفحات الموقع.
+   الحماية الأمنية الحقيقية تحتاج Backend.
+*/
 "use strict";
 
-const TS_USER_KEY = "TOPSTORE_CURRENT_USER";
-const TS_USERS_KEY = "TOPSTORE_USERS";
+const TS = {
+  USER_KEY: "TOPSTORE_CURRENT_USER",
+  LEGACY_KEYS: [
+    "topStoreCurrentUser",
+    "currentUser",
+    "loggedInUser",
+    "topstore_current_user"
+  ],
+  USERS_KEY: "TOPSTORE_USERS",
 
-const TS_PAGES = {
-    "dashboard.html": "dashboard",
-    "sales.html": "sales",
-    "products.html": "products",
-    "returns.html": "returns",
-    "maintenance.html": "maintenance",
-    "accounts.html": "accounts",
-    "expenses.html": "expenses",
-    "reports.html": "reports",
-    "users.html": "users"
+  pages: {
+    "dashboard.html":"dashboard",
+    "sales.html":"sales",
+    "products.html":"products",
+    "returns.html":"returns",
+    "maintenance.html":"maintenance",
+    "accounts.html":"accounts",
+    "expenses.html":"expenses",
+    "reports.html":"reports",
+    "users.html":"users"
+  },
+
+  employeeDefaults: {
+    dashboard:true,
+    sales:true,
+    products:true,
+    returns:true,
+    maintenance:true,
+    accounts:false,
+    expenses:false,
+    reports:false,
+    users:false
+  }
 };
 
-const TS_DEFAULT_EMPLOYEE = {
-    dashboard: true,
-    sales: true,
-    products: true,
-    returns: true,
-    maintenance: true,
-    accounts: false,
-    expenses: false,
-    reports: false,
-    users: false
-};
+function readJSON(key){
+  try{
+    const x=localStorage.getItem(key);
+    return x ? JSON.parse(x) : null;
+  }catch(e){
+    return null;
+  }
+}
 
-const TS_ADMIN_PERMISSIONS = {
-    dashboard: true,
-    sales: true,
-    products: true,
-    returns: true,
-    maintenance: true,
-    accounts: true,
-    expenses: true,
-    reports: true,
-    users: true
-};
+function currentUser(){
+  let u=readJSON(TS.USER_KEY);
 
-function tsJsonGet(key, fallback) {
-    try {
-        const value = localStorage.getItem(key);
-        if (!value) return fallback;
-        const data = JSON.parse(value);
-        return data ?? fallback;
-    } catch {
-        return fallback;
+  if(!u){
+    for(const key of TS.LEGACY_KEYS){
+      u=readJSON(key);
+      if(u) break;
     }
+  }
+
+  if(!u) return null;
+
+  // توحيد شكل المستخدم
+  return {
+    username:String(u.username ?? u.userName ?? "").trim(),
+    name:String(u.name ?? u.fullName ?? u.username ?? u.userName ?? "المستخدم"),
+    role:String(u.role ?? "").trim().toLowerCase(),
+    active:u.active !== false && u.status !== "inactive",
+    permissions:(u.permissions && typeof u.permissions==="object")
+      ? {...u.permissions}
+      : {}
+  };
 }
 
-function tsGetCurrentUser() {
-    return tsJsonGet(TS_USER_KEY, null);
+function isAdmin(u=currentUser()){
+  if(!u) return false;
+
+  // المدير فقط هو الحساب admin.
+  // لا نعتمد على وجود صلاحية users أو accounts لتحديد المدير.
+  return u.username.toLowerCase()==="admin";
 }
 
-function tsSetCurrentUser(user) {
-    if (!user) {
-        localStorage.removeItem(TS_USER_KEY);
-        return;
-    }
+function permissions(u=currentUser()){
+  if(!u) return {};
 
-    localStorage.setItem(TS_USER_KEY, JSON.stringify(user));
-}
-
-function tsGetUsers() {
-    let users = tsJsonGet(TS_USERS_KEY, []);
-
-    if (!Array.isArray(users)) {
-        users = [];
-    }
-
-    return users;
-}
-
-function tsSaveUsers(users) {
-    localStorage.setItem(TS_USERS_KEY, JSON.stringify(users));
-}
-
-function tsIsAdmin(user) {
-    if (!user) return false;
-
-    const username = String(
-        user.username || user.userName || ""
-    ).trim().toLowerCase();
-
-    const role = String(
-        user.role || ""
-    ).trim().toLowerCase();
-
-    return username === "admin" ||
-           role === "admin" ||
-           role === "manager" ||
-           role === "مدير" ||
-           role === "المدير";
-}
-
-function tsGetPermissions(user = tsGetCurrentUser()) {
-    if (!user) return {};
-
-    if (tsIsAdmin(user)) {
-        return { ...TS_ADMIN_PERMISSIONS };
-    }
-
+  if(isAdmin(u)){
     return {
-        ...TS_DEFAULT_EMPLOYEE,
-        ...(user.permissions || {})
+      dashboard:true,sales:true,products:true,returns:true,
+      maintenance:true,accounts:true,expenses:true,
+      reports:true,users:true
     };
+  }
+
+  // أي حساب غير admin = موظف، ولا يرث صلاحيات المدير.
+  return {
+    ...TS.employeeDefaults,
+    ...u.permissions
+  };
 }
 
-function tsHasPermission(permission) {
-    const user = tsGetCurrentUser();
-
-    if (!user) return false;
-
-    if (
-        user.active === false ||
-        user.status === "inactive"
-    ) {
-        return false;
-    }
-
-    return tsGetPermissions(user)[permission] === true;
+function hasPermission(name){
+  const u=currentUser();
+  if(!u || !u.active) return false;
+  return permissions(u)[name] === true;
 }
 
-function tsPagePermission() {
-    const file =
-        location.pathname
-            .split("/")
-            .pop()
-            .toLowerCase();
-
-    return TS_PAGES[file] || null;
+function logout(){
+  localStorage.removeItem(TS.USER_KEY);
+  TS.LEGACY_KEYS.forEach(k=>localStorage.removeItem(k));
+  sessionStorage.clear();
+  location.replace("index.html");
 }
 
-function tsProtectCurrentPage() {
-    const user = tsGetCurrentUser();
+function protectPage(){
+  const u=currentUser();
 
-    if (!user) {
-        location.replace("index.html");
-        return false;
-    }
-
-    const permission = tsPagePermission();
-
-    if (!permission) {
-        return true;
-    }
-
-    if (!tsHasPermission(permission)) {
-        alert("ليس لديك صلاحية للدخول إلى هذه الصفحة.");
-        location.replace("dashboard.html");
-        return false;
-    }
-
-    return true;
-}
-
-function tsApplyMenuPermissions() {
-    document.querySelectorAll("a[href]").forEach(link => {
-        const href = link.getAttribute("href");
-
-        if (!href || !href.toLowerCase().endsWith(".html")) {
-            return;
-        }
-
-        const page =
-            href.split("/").pop().toLowerCase();
-
-        const permission = TS_PAGES[page];
-
-        if (
-            permission &&
-            !tsHasPermission(permission)
-        ) {
-            link.style.display = "none";
-        }
-    });
-}
-
-function tsUpdateUserInfo() {
-    const user = tsGetCurrentUser();
-
-    if (!user) return;
-
-    const name =
-        user.name ||
-        user.fullName ||
-        user.username ||
-        "المستخدم";
-
-    const role =
-        tsIsAdmin(user)
-            ? "المدير"
-            : "الموظف";
-
-    const nameElements = [
-        document.getElementById("usernameDisplay"),
-        document.getElementById("currentUsername")
-    ];
-
-    nameElements.forEach(el => {
-        if (el) el.textContent = name;
-    });
-
-    const roleElements = [
-        document.getElementById("roleDisplay"),
-        document.getElementById("currentRole")
-    ];
-
-    roleElements.forEach(el => {
-        if (el) el.textContent = role;
-    });
-}
-
-function tsLogout() {
-    localStorage.removeItem(TS_USER_KEY);
-
-    // دعم مفاتيح الدخول القديمة بدون التأثير على المستخدمين
-    [
-        "topStoreCurrentUser",
-        "currentUser",
-        "loggedInUser",
-        "topstore_current_user",
-        "loggedInUsername",
-        "currentUsername",
-        "username"
-    ].forEach(key => {
-        localStorage.removeItem(key);
-    });
-
-    sessionStorage.clear();
-
+  if(!u || !u.active){
     location.replace("index.html");
+    return false;
+  }
+
+  const file=location.pathname.split("/").pop().toLowerCase();
+  const required=TS.pages[file];
+
+  if(required && !hasPermission(required)){
+    alert("🚫 ليس لديك صلاحية للدخول إلى هذه الصفحة.");
+    location.replace("dashboard.html");
+    return false;
+  }
+
+  return true;
 }
 
-function tsInitializePermissions() {
-    const user = tsGetCurrentUser();
-
-    if (!user) {
-        location.replace("index.html");
-        return;
+function hideUnauthorizedLinks(){
+  document.querySelectorAll("a[href]").forEach(a=>{
+    const href=(a.getAttribute("href")||"").split("/").pop().toLowerCase();
+    const p=TS.pages[href];
+    if(p && !hasPermission(p)){
+      a.remove();
     }
-
-    if (
-        user.active === false ||
-        user.status === "inactive"
-    ) {
-        alert("هذا الحساب متوقف.");
-        tsLogout();
-        return;
-    }
-
-    if (!tsProtectCurrentPage()) {
-        return;
-    }
-
-    tsApplyMenuPermissions();
-    tsUpdateUserInfo();
-
-    document
-        .querySelectorAll(
-            "#logoutButton, .logout-button, [data-logout]"
-        )
-        .forEach(button => {
-            if (button.dataset.tsReady === "1") return;
-
-            button.dataset.tsReady = "1";
-
-            button.addEventListener(
-                "click",
-                event => {
-                    event.preventDefault();
-
-                    if (
-                        confirm(
-                            "هل تريد تسجيل الخروج؟"
-                        )
-                    ) {
-                        tsLogout();
-                    }
-                }
-            );
-        });
+  });
 }
 
-window.TOPSTORE = {
-    getCurrentUser: tsGetCurrentUser,
-    setCurrentUser: tsSetCurrentUser,
-    getUsers: tsGetUsers,
-    saveUsers: tsSaveUsers,
-    getPermissions: tsGetPermissions,
-    hasPermission: tsHasPermission,
-    isAdmin: () => tsIsAdmin(),
-    logout: tsLogout
+function fillUserInfo(){
+  const u=currentUser();
+  if(!u) return;
+
+  const nameEls=[
+    document.getElementById("usernameDisplay"),
+    document.getElementById("currentUsername")
+  ];
+
+  nameEls.forEach(el=>{
+    if(el) el.textContent=u.name;
+  });
+
+  const roleEls=[
+    document.getElementById("roleDisplay"),
+    document.getElementById("currentRole")
+  ];
+
+  roleEls.forEach(el=>{
+    if(el) el.textContent=isAdmin(u) ? "المدير" : "الموظف";
+  });
+}
+
+function init(){
+  if(!protectPage()) return;
+
+  hideUnauthorizedLinks();
+  fillUserInfo();
+
+  document.querySelectorAll(
+    "#logoutButton,.logout-button,[data-logout]"
+  ).forEach(btn=>{
+    if(btn.dataset.tsLogout==="1") return;
+    btn.dataset.tsLogout="1";
+    btn.addEventListener("click",e=>{
+      e.preventDefault();
+      if(confirm("هل تريد تسجيل الخروج؟")) logout();
+    });
+  });
+}
+
+window.TOPSTORE={
+  getCurrentUser:currentUser,
+  hasPermission,
+  getPermissions:permissions,
+  isAdmin:()=>isAdmin(),
+  logout
 };
 
-if (document.readyState === "loading") {
-    document.addEventListener(
-        "DOMContentLoaded",
-        tsInitializePermissions
-    );
-} else {
-    tsInitializePermissions();
+if(document.readyState==="loading"){
+  document.addEventListener("DOMContentLoaded",init);
+}else{
+  init();
 }

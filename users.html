@@ -2,257 +2,65 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TOP STORE | المستخدمين والصلاحيات</title>
-
 <style>
-*{box-sizing:border-box}
-body{
-    margin:0;
-    background:#f4f7fb;
-    color:#172033;
-    font-family:Arial,Tahoma,sans-serif
-}
-.page{
-    max-width:1200px;
-    margin:auto;
-    padding:20px
-}
-.card{
-    background:#fff;
-    border-radius:18px;
-    padding:22px;
-    margin-bottom:20px;
-    box-shadow:0 8px 28px #0000000d
-}
-.header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px
-}
-.header h1{margin:0 0 6px}
-.header p{margin:0;color:#667085}
-.user-info{color:#667085}
-.grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px
-}
-label{
-    font-weight:bold;
-    display:block
-}
-input{
-    width:100%;
-    margin-top:7px;
-    padding:12px;
-    border:1px solid #d8dee9;
-    border-radius:10px;
-    font-size:15px
-}
-.permissions{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-    margin-top:18px
-}
-.permission{
-    background:#f6f8fb;
-    padding:12px;
-    border-radius:10px;
-    font-weight:normal
-}
-.actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-top:18px
-}
-button{
-    border:0;
-    border-radius:10px;
-    padding:11px 16px;
-    cursor:pointer;
-    font-weight:bold
-}
-.primary{background:#159bd7;color:#fff}
-.danger{background:#ef4444;color:#fff}
-.secondary{background:#e9eef5;color:#172033}
-.table-wrap{overflow:auto}
-table{
-    width:100%;
-    border-collapse:collapse
-}
-th,td{
-    padding:12px;
-    text-align:right;
-    border-bottom:1px solid #edf0f4;
-    white-space:nowrap
-}
-th{background:#f8fafc}
-.badge{
-    padding:5px 9px;
-    border-radius:20px;
-    background:#e9f7ef;
-    color:#198754
-}
-@media(max-width:700px){
-    .grid,.permissions{grid-template-columns:1fr}
-    .header{flex-direction:column;align-items:flex-start}
-}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;font-family:Arial,Tahoma,sans-serif;color:#172033}
+.page{max-width:1150px;margin:auto;padding:18px}.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 8px 28px #0000000d}
+.head{display:flex;justify-content:space-between;align-items:center;gap:15px}.head h1{margin:0 0 5px}.head p{margin:0;color:#687386}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{font-weight:bold}input{width:100%;padding:12px;margin-top:6px;border:1px solid #d7dee8;border-radius:10px}
+.permissions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.permissions label{font-weight:normal;background:#f7f9fb;padding:11px;border-radius:10px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{border:0;border-radius:10px;padding:10px 15px;cursor:pointer;font-weight:bold;background:#e9eef5}.primary{background:#159bd7;color:#fff}.danger{background:#ef4444;color:#fff}
+.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:11px;text-align:right;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc}
+@media(max-width:700px){.grid,.permissions{grid-template-columns:1fr}.head{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
-
 <body>
-
 <div class="page">
 
-<section class="card header">
-    <div>
-        <h1>👥 المستخدمين والصلاحيات</h1>
-        <p>إدارة الموظفين وتحديد الصلاحيات</p>
-    </div>
-
-    <div class="user-info">
-        <strong id="usernameDisplay">المستخدم</strong>
-        -
-        <span id="roleDisplay">المدير</span>
-    </div>
+<section class="card head">
+<div><h1>👥 المستخدمين والصلاحيات</h1><p>المدير فقط يستطيع إدارة صلاحيات الموظفين</p></div>
+<div><strong id="usernameDisplay">المستخدم</strong> - <span id="roleDisplay">المدير</span></div>
 </section>
 
 <section class="card">
-
 <h2 id="formTitle">إضافة موظف جديد</h2>
-
 <form id="userForm">
-
 <div class="grid">
-
-<label>
-اسم المستخدم
-<input id="username" required autocomplete="off">
-</label>
-
-<label>
-اسم الموظف
-<input id="name" required>
-</label>
-
-<label>
-كلمة المرور
-<input id="password" type="password" required>
-</label>
-
-<label>
-تأكيد كلمة المرور
-<input id="passwordConfirm" type="password" required>
-</label>
-
+<label>اسم المستخدم<input id="username" required autocomplete="off"></label>
+<label>اسم الموظف<input id="name" required></label>
+<label>كلمة المرور<input id="password" type="password" required></label>
+<label>تأكيد كلمة المرور<input id="passwordConfirm" type="password" required></label>
 </div>
 
-<h3>الصلاحيات</h3>
-
+<h3>صلاحيات الموظف</h3>
 <div class="permissions">
-
-<label class="permission">
-<input type="checkbox" name="permission" value="sales" checked>
-المبيعات
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="products" checked>
-المنتجات والمخزن
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="returns" checked>
-المرتجعات
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="maintenance" checked>
-الصيانة
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="accounts">
-الحسابات
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="expenses">
-المصروفات
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="reports">
-التقارير
-</label>
-
-<label class="permission">
-<input type="checkbox" name="permission" value="users">
-المستخدمين
-</label>
-
+<label><input data-permission="sales" type="checkbox" checked> المبيعات</label>
+<label><input data-permission="products" type="checkbox" checked> المنتجات والمخزن</label>
+<label><input data-permission="returns" type="checkbox" checked> المرتجعات</label>
+<label><input data-permission="maintenance" type="checkbox" checked> الصيانة</label>
+<label><input data-permission="accounts" type="checkbox"> الحسابات</label>
+<label><input data-permission="expenses" type="checkbox"> المصروفات</label>
+<label><input data-permission="reports" type="checkbox"> التقارير</label>
+<label><input data-permission="users" type="checkbox"> المستخدمين</label>
 </div>
 
 <div class="actions">
-
-<button class="primary" type="submit">
-💾 حفظ الموظف
-</button>
-
-<button class="secondary" id="cancelEdit" type="button" style="display:none">
-إلغاء التعديل
-</button>
-
-<button class="secondary" type="button"
-onclick="location.href='dashboard.html'">
-🏠 الرئيسية
-</button>
-
-<button class="danger" id="logoutButton" type="button">
-🚪 تسجيل الخروج
-</button>
-
+<button class="primary" type="submit">💾 حفظ</button>
+<button id="cancelEdit" type="button">إلغاء</button>
+<button type="button" onclick="location.href='dashboard.html'">🏠 الرئيسية</button>
+<button id="logoutButton" type="button">🚪 خروج</button>
 </div>
-
 </form>
 </section>
 
-
 <section class="card">
-
 <h2>المستخدمون</h2>
-
-<div class="table-wrap">
-
-<table>
-
-<thead>
-<tr>
-<th>المستخدم</th>
-<th>الاسم</th>
-<th>الدور</th>
-<th>الصلاحيات</th>
-<th>الحالة</th>
-<th>إجراء</th>
-</tr>
-</thead>
-
-<tbody id="usersTable"></tbody>
-
-</table>
-
-</div>
-
+<div class="table"><table><thead><tr><th>المستخدم</th><th>الاسم</th><th>الدور</th><th>الصلاحيات</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="usersTable"></tbody></table></div>
 </section>
 
 </div>
-
 <script src="permissions.js"></script>
 <script src="users.js"></script>
-
 </body>
 </html>

@@ -1,411 +1,232 @@
-/* =====================================================
-   TOP STORE - users.js
-===================================================== */
-
+/* TOP STORE - USERS
+   صفحة المستخدمين: المدير فقط
+*/
 "use strict";
 
-const ADMIN = {
-    username: "admin",
-    name: "المدير",
-    password: "1234",
-    role: "admin",
-    active: true,
-    permissions: {
-        dashboard:true,
-        sales:true,
-        products:true,
-        returns:true,
-        maintenance:true,
-        accounts:true,
-        expenses:true,
-        reports:true,
-        users:true
-    }
+const USERS_KEY="TOPSTORE_USERS";
+
+function usersRead(){
+  try{
+    const x=localStorage.getItem(USERS_KEY);
+    const arr=x?JSON.parse(x):[];
+    return Array.isArray(arr)?arr:[];
+  }catch(e){return [];}
+}
+
+function usersWrite(arr){
+  localStorage.setItem(USERS_KEY,JSON.stringify(arr));
+}
+
+function escapeHTML(v){
+  return String(v??"")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+const permissionNames={
+  sales:"المبيعات",
+  products:"المنتجات والمخزن",
+  returns:"المرتجعات",
+  maintenance:"الصيانة",
+  accounts:"الحسابات",
+  expenses:"المصروفات",
+  reports:"التقارير",
+  users:"المستخدمين"
 };
 
-const permissionNames = {
-    sales:"المبيعات",
-    products:"المنتجات والمخزن",
-    returns:"المرتجعات",
-    maintenance:"الصيانة",
-    accounts:"الحسابات",
-    expenses:"المصروفات",
-    reports:"التقارير",
-    users:"المستخدمين"
-};
+let editIndex=-1;
 
-let editIndex = -1;
+function ensureAdmin(){
+  let arr=usersRead();
 
-function loadUsers() {
-    let users = TOPSTORE.getUsers();
+  const i=arr.findIndex(
+    u=>String(u.username||"").toLowerCase()==="admin"
+  );
 
-    if (!users.some(
-        user =>
-            String(user.username).toLowerCase() === "admin"
-    )) {
-        users.unshift(ADMIN);
-        TOPSTORE.saveUsers(users);
+  const admin={
+    username:"admin",
+    name:"المدير",
+    role:"admin",
+    active:true,
+    permissions:{
+      dashboard:true,sales:true,products:true,returns:true,
+      maintenance:true,accounts:true,expenses:true,
+      reports:true,users:true
     }
+  };
 
-    return users;
+  if(i===-1){
+    arr.unshift(admin);
+    usersWrite(arr);
+  }else{
+    // لا تسمح لصفحة الموظفين بتقليل صلاحيات admin.
+    arr[i]={...arr[i],...admin};
+    usersWrite(arr);
+  }
+
+  return arr;
 }
 
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
+function render(){
+  const tbody=document.getElementById("usersTable");
+  if(!tbody)return;
+
+  const arr=ensureAdmin();
+  tbody.innerHTML="";
+
+  arr.forEach((u,i)=>{
+    const admin=String(u.username||"").toLowerCase()==="admin";
+
+    const names=admin
+      ?"كل الصلاحيات"
+      :Object.keys(permissionNames)
+        .filter(k=>u.permissions?.[k]===true)
+        .map(k=>permissionNames[k])
+        .join("، ") || "لا توجد";
+
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+      <td>${escapeHTML(u.username)}</td>
+      <td>${escapeHTML(u.name)}</td>
+      <td>${admin?"👑 المدير":"👤 الموظف"}</td>
+      <td>${escapeHTML(names)}</td>
+      <td>${u.active===false?"متوقف":"نشط"}</td>
+      <td>
+        ${admin?"—":`
+          <button data-edit="${i}">تعديل</button>
+          <button data-delete="${i}" class="danger">حذف</button>
+        `}
+      </td>`;
+
+    tbody.appendChild(tr);
+  });
 }
 
-function permissionsText(user) {
-
-    if (TOPSTORE.isAdminForUser) {
-        return "كل الصلاحيات";
-    }
-
-    if (
-        String(user.role).toLowerCase() === "admin" ||
-        String(user.username).toLowerCase() === "admin"
-    ) {
-        return "كل الصلاحيات";
-    }
-
-    const permissions = user.permissions || {};
-
-    const names = Object.keys(permissionNames)
-        .filter(key => permissions[key] === true)
-        .map(key => permissionNames[key]);
-
-    return names.length
-        ? names.join("، ")
-        : "لا توجد";
+function selectedPermissions(){
+  const p={dashboard:true};
+  document.querySelectorAll("[data-permission]").forEach(c=>{
+    p[c.dataset.permission]=c.checked;
+  });
+  return p;
 }
 
-function renderUsers() {
+function resetForm(){
+  document.getElementById("userForm")?.reset();
+  editIndex=-1;
+  const title=document.getElementById("formTitle");
+  if(title)title.textContent="إضافة موظف جديد";
 
-    const tbody =
-        document.getElementById("usersTable");
-
-    if (!tbody) return;
-
-    const users = loadUsers();
-
-    tbody.innerHTML = "";
-
-    users.forEach((user,index) => {
-
-        const admin =
-            String(user.username).toLowerCase() === "admin" ||
-            String(user.role).toLowerCase() === "admin";
-
-        const tr =
-            document.createElement("tr");
-
-        tr.innerHTML = `
-            <td>${escapeHTML(user.username)}</td>
-            <td>${escapeHTML(user.name)}</td>
-            <td>
-                ${admin ? "👑 المدير" : "👤 الموظف"}
-            </td>
-            <td>${escapeHTML(permissionsText(user))}</td>
-            <td>
-                <span class="badge">
-                    ${user.active === false ? "متوقف" : "نشط"}
-                </span>
-            </td>
-            <td>
-                ${
-                    admin
-                    ? "—"
-                    : `
-                        <button
-                            class="primary"
-                            data-edit="${index}">
-                            تعديل
-                        </button>
-
-                        <button
-                            class="danger"
-                            data-delete="${index}">
-                            حذف
-                        </button>
-                    `
-                }
-            </td>
-        `;
-
-        tbody.appendChild(tr);
+  document.querySelectorAll("[data-permission]")
+    .forEach(c=>{
+      c.checked=["sales","products","returns","maintenance"]
+        .includes(c.dataset.permission);
     });
 }
 
-function getSelectedPermissions() {
+function editUser(i){
+  const arr=ensureAdmin();
+  const u=arr[i];
+  if(!u || String(u.username).toLowerCase()==="admin"){
+    alert("لا يمكن تعديل حساب المدير.");
+    return;
+  }
 
-    const result = {
-        dashboard: true
+  editIndex=i;
+  document.getElementById("username").value=u.username||"";
+  document.getElementById("name").value=u.name||"";
+  document.getElementById("password").value=u.password||"";
+  document.getElementById("passwordConfirm").value=u.password||"";
+
+  document.querySelectorAll("[data-permission]").forEach(c=>{
+    c.checked=u.permissions?.[c.dataset.permission]===true;
+  });
+
+  document.getElementById("formTitle").textContent="تعديل الموظف";
+}
+
+document.getElementById("userForm")?.addEventListener("submit",e=>{
+  e.preventDefault();
+
+  const username=document.getElementById("username").value.trim();
+  const name=document.getElementById("name").value.trim();
+  const password=document.getElementById("password").value;
+  const confirmPassword=document.getElementById("passwordConfirm").value;
+
+  if(!username||!name||!password){
+    alert("أكمل البيانات.");
+    return;
+  }
+
+  if(password!==confirmPassword){
+    alert("كلمتا المرور غير متطابقتين.");
+    return;
+  }
+
+  if(username.toLowerCase()==="admin"){
+    alert("اسم admin محجوز للمدير.");
+    return;
+  }
+
+  const arr=ensureAdmin();
+
+  const duplicate=arr.findIndex((u,i)=>
+    i!==editIndex &&
+    String(u.username||"").toLowerCase()===username.toLowerCase()
+  );
+
+  if(duplicate!==-1){
+    alert("اسم المستخدم موجود بالفعل.");
+    return;
+  }
+
+  const employee={
+    username,
+    name,
+    password,
+    role:"employee",
+    active:true,
+    permissions:selectedPermissions()
+  };
+
+  if(editIndex===-1){
+    arr.push(employee);
+    alert("تم إضافة الموظف ✅");
+  }else{
+    arr[editIndex]={
+      ...arr[editIndex],
+      ...employee,
+      role:"employee"
     };
+    alert("تم تعديل الصلاحيات ✅");
+  }
 
-    document
-        .querySelectorAll(
-            'input[name="permission"]'
-        )
-        .forEach(check => {
-            result[check.value] =
-                check.checked;
-        });
+  usersWrite(arr);
+  resetForm();
+  render();
+});
 
-    return result;
-}
+document.getElementById("cancelEdit")?.addEventListener("click",resetForm);
 
-function clearForm() {
+document.getElementById("usersTable")?.addEventListener("click",e=>{
+  const edit=e.target.closest("[data-edit]");
+  const del=e.target.closest("[data-delete]");
 
-    document
-        .getElementById("userForm")
-        .reset();
+  if(edit)editUser(Number(edit.dataset.edit));
 
-    editIndex = -1;
+  if(del){
+    const i=Number(del.dataset.delete);
+    const arr=ensureAdmin();
 
-    document
-        .getElementById("formTitle")
-        .textContent =
-        "إضافة موظف جديد";
-
-    document
-        .getElementById("cancelEdit")
-        .style.display =
-        "none";
-
-    document
-        .getElementById("password")
-        .required = true;
-
-    document
-        .getElementById("passwordConfirm")
-        .required = true;
-
-    document
-        .querySelectorAll(
-            'input[name="permission"]'
-        )
-        .forEach((check,index) => {
-            check.checked =
-                index < 4;
-        });
-}
-
-function startEdit(index) {
-
-    const users = loadUsers();
-    const user = users[index];
-
-    if (!user) return;
-
-    if (
-        String(user.username).toLowerCase() === "admin"
-    ) {
-        alert("لا يمكن تعديل حساب المدير من هنا.");
-        return;
+    if(confirm("هل تريد حذف الموظف؟")){
+      arr.splice(i,1);
+      usersWrite(arr);
+      render();
     }
+  }
+});
 
-    editIndex = index;
-
-    document.getElementById("username").value =
-        user.username || "";
-
-    document.getElementById("name").value =
-        user.name || "";
-
-    document.getElementById("password").value =
-        user.password || "";
-
-    document.getElementById("passwordConfirm").value =
-        user.password || "";
-
-    const permissions =
-        user.permissions || {};
-
-    document
-        .querySelectorAll(
-            'input[name="permission"]'
-        )
-        .forEach(check => {
-            check.checked =
-                permissions[check.value] === true;
-        });
-
-    document
-        .getElementById("formTitle")
-        .textContent =
-        "تعديل الموظف";
-
-    document
-        .getElementById("cancelEdit")
-        .style.display =
-        "inline-block";
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-}
-
-function deleteUser(index) {
-
-    const users = loadUsers();
-    const user = users[index];
-
-    if (!user) return;
-
-    if (
-        String(user.username).toLowerCase() === "admin"
-    ) {
-        alert("لا يمكن حذف المدير.");
-        return;
-    }
-
-    if (
-        !confirm(
-            "هل تريد حذف هذا الموظف؟"
-        )
-    ) {
-        return;
-    }
-
-    users.splice(index,1);
-
-    TOPSTORE.saveUsers(users);
-
-    renderUsers();
-
-    alert("تم حذف الموظف.");
-}
-
-document
-    .getElementById("userForm")
-    ?.addEventListener(
-        "submit",
-        function(event) {
-
-            event.preventDefault();
-
-            const username =
-                document
-                    .getElementById("username")
-                    .value
-                    .trim();
-
-            const name =
-                document
-                    .getElementById("name")
-                    .value
-                    .trim();
-
-            const password =
-                document
-                    .getElementById("password")
-                    .value;
-
-            const passwordConfirm =
-                document
-                    .getElementById("passwordConfirm")
-                    .value;
-
-            if (!username || !name || !password) {
-                alert("أكمل البيانات المطلوبة.");
-                return;
-            }
-
-            if (password !== passwordConfirm) {
-                alert("كلمتا المرور غير متطابقتين.");
-                return;
-            }
-
-            if (
-                username.toLowerCase() === "admin" &&
-                editIndex !== 0
-            ) {
-                alert("اسم admin محجوز للمدير.");
-                return;
-            }
-
-            const users = loadUsers();
-
-            const duplicate =
-                users.findIndex(
-                    (user,index) =>
-                        index !== editIndex &&
-                        String(user.username).toLowerCase() ===
-                        username.toLowerCase()
-                );
-
-            if (duplicate !== -1) {
-                alert("اسم المستخدم موجود بالفعل.");
-                return;
-            }
-
-            const data = {
-                username,
-                name,
-                password,
-                role: "employee",
-                active: true,
-                permissions: getSelectedPermissions()
-            };
-
-            if (editIndex === -1) {
-                users.push(data);
-                alert("تم إضافة الموظف بنجاح ✅");
-            } else {
-                users[editIndex] = {
-                    ...users[editIndex],
-                    ...data
-                };
-                alert("تم تعديل الصلاحيات بنجاح ✅");
-            }
-
-            TOPSTORE.saveUsers(users);
-
-            clearForm();
-            renderUsers();
-        }
-    );
-
-document
-    .getElementById("cancelEdit")
-    ?.addEventListener(
-        "click",
-        clearForm
-    );
-
-document
-    .getElementById("usersTable")
-    ?.addEventListener(
-        "click",
-        event => {
-
-            const edit =
-                event.target.closest(
-                    "[data-edit]"
-                );
-
-            const del =
-                event.target.closest(
-                    "[data-delete]"
-                );
-
-            if (edit) {
-                startEdit(
-                    Number(edit.dataset.edit)
-                );
-            }
-
-            if (del) {
-                deleteUser(
-                    Number(del.dataset.delete)
-                );
-            }
-        }
-    );
-
-renderUsers();
+render();
