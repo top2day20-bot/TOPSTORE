@@ -1,122 +1,114 @@
-/* TOP STORE - Maintenance */
-"use strict";
+'use strict';
 
-const MAINTENANCE_KEY = "topStoreMaintenance";
+const STORAGE_KEY = 'topStoreMaintenance';
 
-function getMaintenance() {
-    try {
-        const data = localStorage.getItem(MAINTENANCE_KEY);
-        return data ? JSON.parse(data) : [];
-    } catch (e) {
-        return [];
-    }
+function getRecords(){
+    try{
+        const data = localStorage.getItem(STORAGE_KEY);
+        const records = data ? JSON.parse(data) : [];
+        return Array.isArray(records) ? records : [];
+    }catch(e){ return []; }
 }
 
-function saveMaintenance(list) {
-    localStorage.setItem(MAINTENANCE_KEY, JSON.stringify(list));
+function saveRecords(records){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 }
 
-function renderMaintenance() {
-    const tbody = document.getElementById("maintenanceTable");
-    const empty = document.getElementById("empty");
-    if (!tbody) return;
+function esc(v){
+    return String(v ?? '')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+}
 
-    const list = getMaintenance();
-    tbody.innerHTML = "";
+function render(){
+    const tbody=document.getElementById('maintenanceTable');
+    const empty=document.getElementById('emptyState');
+    const count=document.getElementById('maintenanceCount');
+    if(!tbody)return;
 
-    if (!list.length) {
-        if (empty) empty.style.display = "block";
-        return;
-    }
+    const records=getRecords();
+    tbody.innerHTML='';
+    if(count) count.textContent=records.length;
+    if(empty) empty.style.display=records.length?'none':'block';
 
-    if (empty) empty.style.display = "none";
-
-    list.slice().reverse().forEach((item, reverseIndex) => {
-        const index = list.length - 1 - reverseIndex;
-
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${escapeHTML(item.date)}</td>
-            <td>${escapeHTML(item.customerName)}</td>
-            <td>${escapeHTML(item.device)}</td>
-            <td>${escapeHTML(item.problem)}</td>
-            <td>${Number(item.cost || 0).toFixed(2)} ج.م</td>
-            <td><span class="badge">${escapeHTML(item.status)}</span></td>
-            <td><button class="danger" type="button" onclick="deleteMaintenance(${index})">حذف</button></td>
-        `;
+    records.slice().reverse().forEach((r,rev)=>{
+        const index=records.length-1-rev;
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+        <td>${esc(r.id)}</td>
+        <td>${esc(r.date)}</td>
+        <td>${esc(r.customerName)}</td>
+        <td>${esc(r.customerPhone)}</td>
+        <td>${esc(r.device)}</td>
+        <td>${esc(r.problem)}</td>
+        <td>${Number(r.cost||0).toFixed(2)} ج.م</td>
+        <td><span class="status">${esc(r.status)}</span></td>
+        <td><button class="delete" data-index="${index}" type="button">حذف</button></td>`;
         tbody.appendChild(tr);
     });
 }
 
-function escapeHTML(value) {
-    return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
+document.getElementById('maintenanceForm')?.addEventListener('submit',e=>{
+    e.preventDefault();
 
-function deleteMaintenance(index) {
-    if (!TOPSTORE.hasPermission("maintenance")) return;
+    const record={
+        id:'M-'+Date.now(),
+        date:new Date().toLocaleString('ar-EG'),
+        customerName:document.getElementById('customerName').value.trim(),
+        customerPhone:document.getElementById('customerPhone').value.trim(),
+        device:document.getElementById('device').value.trim(),
+        serial:document.getElementById('serial').value.trim(),
+        problem:document.getElementById('problem').value.trim(),
+        cost:Number(document.getElementById('cost').value||0),
+        status:document.getElementById('status').value,
+        notes:document.getElementById('notes').value.trim()
+    };
 
-    if (!confirm("هل تريد حذف سجل الصيانة؟")) return;
+    if(!record.customerName||!record.device||!record.problem){
+        alert('أكمل اسم العميل والجهاز والعطل.');
+        return;
+    }
 
-    const list = getMaintenance();
-    list.splice(index, 1);
-    saveMaintenance(list);
-    renderMaintenance();
-}
+    const records=getRecords();
+    records.push(record);
+    saveRecords(records);
 
-function initMaintenance() {
-    const form = document.getElementById("maintenanceForm");
-    if (!form) return;
+    e.target.reset();
+    document.getElementById('cost').value='0';
+    render();
+    alert('تم تسجيل الصيانة بنجاح ✅');
+});
 
-    form.addEventListener("submit", e => {
-        e.preventDefault();
+document.getElementById('maintenanceTable')?.addEventListener('click',e=>{
+    if(!e.target.classList.contains('delete'))return;
+    const index=Number(e.target.dataset.index);
+    if(!confirm('هل تريد حذف سجل الصيانة؟'))return;
+    const records=getRecords();
+    records.splice(index,1);
+    saveRecords(records);
+    render();
+});
 
-        if (!TOPSTORE.hasPermission("maintenance")) {
-            alert("ليس لديك صلاحية.");
-            return;
-        }
+document.getElementById('clearButton')?.addEventListener('click',()=>{
+    document.getElementById('maintenanceForm')?.reset();
+    document.getElementById('cost').value='0';
+});
 
-        const user = TOPSTORE.getCurrentUser();
+document.getElementById('backButton')?.addEventListener('click',()=>{
+    location.href='dashboard.html';
+});
 
-        const item = {
-            id: Date.now(),
-            date: new Date().toLocaleString("ar-EG"),
-            customerName: document.getElementById("customerName").value.trim(),
-            customerPhone: document.getElementById("customerPhone").value.trim(),
-            device: document.getElementById("device").value.trim(),
-            serial: document.getElementById("serial").value.trim(),
-            problem: document.getElementById("problem").value.trim(),
-            cost: Number(document.getElementById("cost").value || 0),
-            status: document.getElementById("status").value,
-            notes: document.getElementById("notes").value.trim(),
-            createdBy: user?.username || user?.name || "المستخدم"
-        };
+document.getElementById('logoutButton')?.addEventListener('click',()=>{
+    if(!confirm('هل تريد تسجيل الخروج؟'))return;
+    if(window.TOPSTORE && typeof TOPSTORE.logout==='function'){
+        TOPSTORE.logout();
+    }else{
+        localStorage.removeItem('topStoreCurrentUser');
+        location.href='index.html';
+    }
+});
 
-        if (!item.customerName || !item.device || !item.problem) {
-            alert("من فضلك أكمل اسم العميل والجهاز والعطل.");
-            return;
-        }
-
-        const list = getMaintenance();
-        list.push(item);
-        saveMaintenance(list);
-
-        form.reset();
-        document.getElementById("cost").value = "0";
-
-        renderMaintenance();
-        alert("تم حفظ الصيانة بنجاح ✅");
-    });
-
-    renderMaintenance();
-}
-
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initMaintenance);
-} else {
-    initMaintenance();
-}
+render();

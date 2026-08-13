@@ -1,19 +1,16 @@
-TOP STORE - إصلاح الصلاحيات والصيانة
+TOP STORE - نسخة الصيانة الجديدة
 
-استبدل الملفات التالية:
-1) permissions.js
-2) maintenance.html
-3) maintenance.js
-4) users.html
-5) users.js
+استبدل فقط:
+maintenance.html
+maintenance.css
+maintenance.js
 
-مهم:
-- لا تضف permissions.js مرتين في نفس الصفحة.
-- في maintenance.html و users.html يجب أن يكون permissions.js قبل ملف الصفحة.
-- المدير الافتراضي: admin / 1234
-- المدير لديه كل الصلاحيات.
-- الموظف يبدأ بصلاحيات المبيعات والمنتجات والمرتجعات والصيانة.
-- من users.html يستطيع المدير تعديل صلاحيات الموظف.
+هذه النسخة لا تحتوي على نظام صلاحيات مستقل داخل maintenance.js.
+permissions.js هو المسؤول عن الصلاحيات.
 
-ملاحظة:
-الملفات تدعم أكثر من اسم شائع لتخزين المستخدم الحالي في localStorage حتى تتوافق مع نظام الدخول الموجود.
+مهم: لا تضف permissions.js مرتين.
+ترتيب السكربتات في maintenance.html:
+permissions.js
+ثم maintenance.js
+
+الصيانة نفسها لا تقوم بفحص صلاحيات إضافي، لذلك لا يوجد تعارض داخلي.
