@@ -2,18 +2,45 @@
 
 /* =========================================
    TOP STORE - SALES SYSTEM
-   المبيعات + المخزن + الفواتير
    ========================================= */
 
-const PRODUCTS_KEY = "topStoreProducts";
-const SALES_KEY = "topStoreSales";
+
+/* المنتجات التجريبية مؤقتًا
+   لاحقًا هنستبدلها بقاعدة البيانات */
+
+const products = [
+    {
+        barcode: "1001",
+        name: "iPhone 15",
+        price: 35000,
+        stock: 5
+    },
+    {
+        barcode: "1002",
+        name: "Samsung A55",
+        price: 18000,
+        stock: 8
+    },
+    {
+        barcode: "1003",
+        name: "شاحن Type-C",
+        price: 350,
+        stock: 20
+    },
+    {
+        barcode: "1004",
+        name: "سماعة Bluetooth",
+        price: 750,
+        stock: 12
+    }
+];
+
 
 let cart = [];
-let products = [];
 
 
 /* =========================================
-   العناصر
+   Elements
    ========================================= */
 
 const productInput =
@@ -61,67 +88,15 @@ const clearSaleButton =
 const printSaleButton =
     document.getElementById("printSale");
 
-const paymentMethod =
-    document.getElementById("paymentMethod");
-
-const customerName =
-    document.getElementById("customerName");
-
-const customerPhone =
-    document.getElementById("customerPhone");
+const toast =
+    document.getElementById("toast");
 
 const invoiceNumberElement =
     document.getElementById("invoiceNumber");
 
-const toast =
-    document.getElementById("toast");
-
 
 /* =========================================
-   تحميل المنتجات من المخزن
-   ========================================= */
-
-function loadProducts() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(PRODUCTS_KEY);
-
-        products =
-            saved ? JSON.parse(saved) : [];
-
-        if (!Array.isArray(products)) {
-            products = [];
-        }
-
-    } catch (error) {
-
-        console.error(
-            "خطأ في تحميل المنتجات:",
-            error
-        );
-
-        products = [];
-    }
-}
-
-
-/* =========================================
-   حفظ المنتجات في المخزن
-   ========================================= */
-
-function saveProducts() {
-
-    localStorage.setItem(
-        PRODUCTS_KEY,
-        JSON.stringify(products)
-    );
-}
-
-
-/* =========================================
-   رقم الفاتورة
+   Invoice Number
    ========================================= */
 
 function generateInvoiceNumber() {
@@ -130,49 +105,25 @@ function generateInvoiceNumber() {
 
     return (
         now.getFullYear().toString() +
-        (now.getMonth() + 1)
-            .toString()
-            .padStart(2, "0") +
-        now.getDate()
-            .toString()
-            .padStart(2, "0") +
+        (now.getMonth() + 1).toString().padStart(2, "0") +
+        now.getDate().toString().padStart(2, "0") +
         "-" +
-        now.getHours()
-            .toString()
-            .padStart(2, "0") +
-        now.getMinutes()
-            .toString()
-            .padStart(2, "0") +
-        now.getSeconds()
-            .toString()
-            .padStart(2, "0")
+        now.getHours().toString().padStart(2, "0") +
+        now.getMinutes().toString().padStart(2, "0") +
+        now.getSeconds().toString().padStart(2, "0")
     );
 }
 
 
-function newInvoiceNumber() {
-
-    if (invoiceNumberElement) {
-
-        invoiceNumberElement.textContent =
-            generateInvoiceNumber();
-    }
-}
+invoiceNumberElement.textContent =
+    generateInvoiceNumber();
 
 
 /* =========================================
-   رسالة النظام
+   Toast
    ========================================= */
 
-function showToast(
-    message,
-    type = ""
-) {
-
-    if (!toast) {
-        alert(message);
-        return;
-    }
+function showToast(message, type = "") {
 
     toast.textContent = message;
 
@@ -181,81 +132,20 @@ function showToast(
 
     setTimeout(() => {
 
-        toast.className =
-            "toast";
+        toast.className = "toast";
 
     }, 2500);
 }
 
 
 /* =========================================
-   البحث عن المنتج
-   ========================================= */
-
-function findProduct(search) {
-
-    const value =
-        String(search)
-            .trim()
-            .toLowerCase();
-
-
-    if (!value) {
-        return null;
-    }
-
-
-    return products.find(product => {
-
-        const barcode =
-            String(
-                product.barcode ?? ""
-            ).toLowerCase();
-
-        const name =
-            String(
-                product.name ?? ""
-            ).toLowerCase();
-
-
-        return (
-            barcode === value ||
-            name === value
-        );
-
-    }) || products.find(product => {
-
-        const barcode =
-            String(
-                product.barcode ?? ""
-            ).toLowerCase();
-
-        const name =
-            String(
-                product.name ?? ""
-            ).toLowerCase();
-
-
-        return (
-            barcode.includes(value) ||
-            name.includes(value)
-        );
-    });
-}
-
-
-/* =========================================
-   إضافة منتج
+   Add Product
    ========================================= */
 
 function addProduct() {
 
-    loadProducts();
-
-
     const search =
-        productInput.value.trim();
-
+        productInput.value.trim().toLowerCase();
 
     if (!search) {
 
@@ -270,40 +160,17 @@ function addProduct() {
     }
 
 
-    if (products.length === 0) {
-
-        showToast(
-            "المخزن فارغ، أضف منتجات أولاً",
-            "error"
-        );
-
-        return;
-    }
-
-
     const product =
-        findProduct(search);
+        products.find(item =>
+            item.barcode.toLowerCase() === search ||
+            item.name.toLowerCase().includes(search)
+        );
 
 
     if (!product) {
 
         showToast(
-            "المنتج غير موجود في المخزن",
-            "error"
-        );
-
-        return;
-    }
-
-
-    const stock =
-        Number(product.quantity) || 0;
-
-
-    if (stock <= 0) {
-
-        showToast(
-            "هذا المنتج غير متوفر في المخزن",
+            "المنتج غير موجود",
             "error"
         );
 
@@ -313,52 +180,33 @@ function addProduct() {
 
     const existing =
         cart.find(item =>
-            item.productId === product.id
+            item.barcode === product.barcode
         );
 
 
     if (existing) {
 
-        if (
-            existing.qty >=
-            stock
-        ) {
+        if (existing.qty >= product.stock) {
 
             showToast(
-                "لا توجد كمية إضافية من المنتج",
+                "الكمية المطلوبة غير متوفرة في المخزن",
                 "error"
             );
 
             return;
         }
 
-
         existing.qty++;
 
     } else {
 
         cart.push({
-
-            productId:
-                product.id,
-
-            barcode:
-                product.barcode,
-
-            name:
-                product.name,
-
-            price:
-                Number(product.sellPrice) || 0,
-
-            qty:
-                1,
-
-            stock:
-                stock,
-
-            discount:
-                0
+            barcode: product.barcode,
+            name: product.name,
+            price: product.price,
+            qty: 1,
+            discount: 0,
+            stock: product.stock
         });
     }
 
@@ -371,207 +219,122 @@ function addProduct() {
 }
 
 
-/* =========================================
-   زر إضافة
-   ========================================= */
-
-if (addProductButton) {
-
-    addProductButton.addEventListener(
-        "click",
-        addProduct
-    );
-}
+addProductButton.addEventListener(
+    "click",
+    addProduct
+);
 
 
 /* =========================================
-   Enter للباركود
+   Barcode Enter
    ========================================= */
 
-if (productInput) {
+productInput.addEventListener(
+    "keydown",
+    event => {
 
-    productInput.addEventListener(
-        "keydown",
-        event => {
+        if (event.key === "Enter") {
 
-            if (event.key === "Enter") {
+            event.preventDefault();
 
-                event.preventDefault();
-
-                addProduct();
-            }
+            addProduct();
         }
-    );
-}
+    }
+);
 
 
 /* =========================================
-   رسم السلة
+   Render Cart
    ========================================= */
 
 function renderCart() {
-
-    if (!cartBody) {
-        return;
-    }
-
 
     cartBody.innerHTML = "";
 
 
     if (cart.length === 0) {
 
-        if (emptyCart) {
-            emptyCart.style.display =
-                "block";
-        }
+        emptyCart.style.display = "block";
 
     } else {
 
-        if (emptyCart) {
-            emptyCart.style.display =
-                "none";
-        }
+        emptyCart.style.display = "none";
     }
 
 
-    cart.forEach(
-        (item, index) => {
+    cart.forEach((item, index) => {
 
-            const row =
-                document.createElement("tr");
-
-
-            const total =
-                (
-                    item.price *
-                    item.qty
-                ) -
-                (
-                    Number(item.discount) ||
-                    0
-                );
+        const row =
+            document.createElement("tr");
 
 
-            row.innerHTML = `
-
-                <td class="product-name">
-
-                    ${escapeHtml(item.name)}
-
-                    <small
-                        style="
-                            display:block;
-                            color:#94a3b8;
-                            margin-top:3px;
-                        ">
-
-                        ${escapeHtml(
-                            item.barcode
-                        )}
-
-                    </small>
-
-                </td>
+        const itemTotal =
+            (item.price * item.qty) -
+            item.discount;
 
 
-                <td>
+        row.innerHTML = `
 
-                    ${formatMoney(
-                        item.price
-                    )}
+            <td class="product-name">
+                ${escapeHtml(item.name)}
+                <small style="display:block;color:#94a3b8">
+                    ${escapeHtml(item.barcode)}
+                </small>
+            </td>
 
-                </td>
+            <td>
+                ${formatMoney(item.price)}
+            </td>
 
+            <td>
 
-                <td>
-
-                    <div class="qty-control">
-
-                        <button
-                            type="button"
-                            onclick="
-                                changeQuantity(
-                                    ${index},
-                                    -1
-                                )
-                            ">
-
-                            −
-
-                        </button>
-
-
-                        <span class="qty-value">
-
-                            ${item.qty}
-
-                        </span>
-
-
-                        <button
-                            type="button"
-                            onclick="
-                                changeQuantity(
-                                    ${index},
-                                    1
-                                )
-                            ">
-
-                            +
-
-                        </button>
-
-                    </div>
-
-                </td>
-
-
-                <td>
-
-                    ${formatMoney(
-                        item.discount
-                    )}
-
-                </td>
-
-
-                <td>
-
-                    <strong>
-
-                        ${formatMoney(
-                            total
-                        )}
-
-                    </strong>
-
-                </td>
-
-
-                <td>
+                <div class="qty-control">
 
                     <button
-                        type="button"
-                        class="delete-item"
-                        onclick="
-                            removeProduct(
-                                ${index}
-                            )
-                        ">
-
-                        ×
-
+                        onclick="changeQuantity(${index}, -1)">
+                        −
                     </button>
 
-                </td>
-            `;
+                    <span class="qty-value">
+                        ${item.qty}
+                    </span>
+
+                    <button
+                        onclick="changeQuantity(${index}, 1)">
+                        +
+                    </button>
+
+                </div>
+
+            </td>
+
+            <td>
+                ${formatMoney(item.discount)}
+            </td>
+
+            <td>
+                <strong>
+                    ${formatMoney(itemTotal)}
+                </strong>
+            </td>
+
+            <td>
+
+                <button
+                    class="delete-item"
+                    onclick="removeProduct(${index})">
+
+                    ×
+
+                </button>
+
+            </td>
+        `;
 
 
-            cartBody.appendChild(row);
+        cartBody.appendChild(row);
 
-        }
-    );
+    });
 
 
     calculateTotals();
@@ -579,39 +342,12 @@ function renderCart() {
 
 
 /* =========================================
-   تغيير الكمية
+   Quantity
    ========================================= */
 
-function changeQuantity(
-    index,
-    amount
-) {
+function changeQuantity(index, amount) {
 
-    const item =
-        cart[index];
-
-
-    if (!item) {
-        return;
-    }
-
-
-    loadProducts();
-
-
-    const product =
-        products.find(
-            p =>
-                p.id ===
-                item.productId
-        );
-
-
-    const stock =
-        product
-            ? Number(product.quantity) || 0
-            : item.stock;
-
+    const item = cart[index];
 
     const newQuantity =
         item.qty + amount;
@@ -625,13 +361,10 @@ function changeQuantity(
     }
 
 
-    if (
-        newQuantity >
-        stock
-    ) {
+    if (newQuantity > item.stock) {
 
         showToast(
-            "الكمية المطلوبة أكبر من المخزون",
+            "الكمية غير متوفرة في المخزن",
             "error"
         );
 
@@ -639,30 +372,17 @@ function changeQuantity(
     }
 
 
-    item.qty =
-        newQuantity;
-
-    item.stock =
-        stock;
-
+    item.qty = newQuantity;
 
     renderCart();
 }
 
 
 /* =========================================
-   حذف منتج من السلة
+   Remove Product
    ========================================= */
 
 function removeProduct(index) {
-
-    if (
-        index < 0 ||
-        index >= cart.length
-    ) {
-        return;
-    }
-
 
     cart.splice(index, 1);
 
@@ -671,7 +391,7 @@ function removeProduct(index) {
 
 
 /* =========================================
-   حساب الإجماليات
+   Calculate
    ========================================= */
 
 function calculateTotals() {
@@ -684,33 +404,20 @@ function calculateTotals() {
     cart.forEach(item => {
 
         subtotal +=
-            (
-                Number(item.price) *
-                Number(item.qty)
-            );
+            item.price * item.qty;
 
-        count +=
-            Number(item.qty);
+        count += item.qty;
 
     });
 
 
-    const discountInputValue =
-        Number(
-            discountInput
-                ? discountInput.value
-                : 0
-        ) || 0;
-
-
     let discount = 0;
 
+    const discountInputValue =
+        Number(discountInput.value) || 0;
 
-    if (
-        discountType &&
-        discountType.value ===
-            "percent"
-    ) {
+
+    if (discountType.value === "percent") {
 
         discount =
             subtotal *
@@ -724,11 +431,6 @@ function calculateTotals() {
     }
 
 
-    if (discount < 0) {
-        discount = 0;
-    }
-
-
     if (discount > subtotal) {
         discount = subtotal;
     }
@@ -739,182 +441,84 @@ function calculateTotals() {
 
 
     const paid =
-        Number(
-            paidInput
-                ? paidInput.value
-                : 0
-        ) || 0;
+        Number(paidInput.value) || 0;
 
 
     const remaining =
         grandTotal - paid;
 
 
-    if (itemsCount) {
+    itemsCount.textContent =
+        count;
 
-        itemsCount.textContent =
-            count;
+
+    subtotalElement.textContent =
+        formatMoney(subtotal);
+
+
+    discountValueElement.textContent =
+        formatMoney(discount);
+
+
+    grandTotalElement.textContent =
+        formatMoney(grandTotal);
+
+
+    if (remaining > 0) {
+
+        remainingElement.textContent =
+            formatMoney(remaining) + " ج.م";
+
+        remainingElement.style.color =
+            "#dc2626";
+
+    } else {
+
+        const change =
+            Math.abs(remaining);
+
+        remainingElement.textContent =
+            "الباقي: " +
+            formatMoney(change) +
+            " ج.م";
+
+        remainingElement.style.color =
+            "#16a34a";
     }
-
-
-    if (subtotalElement) {
-
-        subtotalElement.textContent =
-            formatMoney(subtotal);
-    }
-
-
-    if (discountValueElement) {
-
-        discountValueElement.textContent =
-            formatMoney(discount);
-    }
-
-
-    if (grandTotalElement) {
-
-        grandTotalElement.textContent =
-            formatMoney(grandTotal);
-    }
-
-
-    if (remainingElement) {
-
-        if (remaining > 0) {
-
-            remainingElement.textContent =
-                formatMoney(
-                    remaining
-                ) + " ج.م";
-
-            remainingElement.style.color =
-                "#dc2626";
-
-        } else {
-
-            remainingElement.textContent =
-                "الباقي: " +
-                formatMoney(
-                    Math.abs(remaining)
-                ) +
-                " ج.م";
-
-            remainingElement.style.color =
-                "#16a34a";
-        }
-    }
-
-
-    return {
-        subtotal,
-        discount,
-        grandTotal,
-        paid,
-        remaining
-    };
 }
 
 
 /* =========================================
-   حساب تلقائي
+   Inputs Calculation
    ========================================= */
 
-if (discountInput) {
+discountInput.addEventListener(
+    "input",
+    calculateTotals
+);
 
-    discountInput.addEventListener(
-        "input",
-        calculateTotals
-    );
-}
+discountType.addEventListener(
+    "change",
+    calculateTotals
+);
 
-
-if (discountType) {
-
-    discountType.addEventListener(
-        "change",
-        calculateTotals
-    );
-}
-
-
-if (paidInput) {
-
-    paidInput.addEventListener(
-        "input",
-        calculateTotals
-    );
-}
+paidInput.addEventListener(
+    "input",
+    calculateTotals
+);
 
 
 /* =========================================
-   التحقق من المخزون قبل البيع
+   Save Sale
    ========================================= */
 
-function validateStock() {
-
-    loadProducts();
-
-
-    for (const item of cart) {
-
-        const product =
-            products.find(
-                p =>
-                    p.id ===
-                    item.productId
-            );
+saveSaleButton.addEventListener(
+    "click",
+    saveSale
+);
 
 
-        if (!product) {
-
-            return {
-                valid: false,
-                message:
-                    `المنتج "${item.name}" لم يعد موجودًا في المخزن.`
-            };
-        }
-
-
-        const stock =
-            Number(product.quantity) || 0;
-
-
-        if (
-            item.qty >
-            stock
-        ) {
-
-            return {
-                valid: false,
-                message:
-                    `الكمية المطلوبة من "${item.name}" غير متوفرة. المتاح: ${stock}`
-            };
-        }
-    }
-
-
-    return {
-        valid: true
-    };
-}
-
-
-/* =========================================
-   حفظ الفاتورة
-   ========================================= */
-
-if (saveSaleButton) {
-
-    saveSaleButton.addEventListener(
-        "click",
-        () => saveSale(false)
-    );
-}
-
-
-function saveSale(
-    printAfterSave = false
-) {
+function saveSale() {
 
     if (cart.length === 0) {
 
@@ -923,332 +527,27 @@ function saveSale(
             "error"
         );
 
-        return false;
+        return;
     }
 
 
-    const stockCheck =
-        validateStock();
+    calculateTotals();
 
 
-    if (!stockCheck.valid) {
-
-        showToast(
-            stockCheck.message,
-            "error"
+    const total =
+        Number(
+            grandTotalElement.textContent
         );
 
-        return false;
-    }
+
+    const paid =
+        Number(paidInput.value) || 0;
 
 
-    const totals =
-        calculateTotals();
-
-
-    if (
-        totals.paid <
-        totals.grandTotal
-    ) {
+    if (paid < total) {
 
         showToast(
             "المبلغ المدفوع أقل من إجمالي الفاتورة",
-            "error"
-        );
-
-        if (paidInput) {
-            paidInput.focus();
-        }
-
-        return false;
-    }
-
-
-    const invoice =
-        invoiceNumberElement
-            ? invoiceNumberElement.textContent
-            : generateInvoiceNumber();
-
-
-    const sale = {
-
-        id:
-            Date.now().toString(),
-
-        invoice:
-            invoice,
-
-        date:
-            new Date().toISOString(),
-
-        customerName:
-            customerName
-                ? customerName.value.trim()
-                : "",
-
-        customerPhone:
-            customerPhone
-                ? customerPhone.value.trim()
-                : "",
-
-        paymentMethod:
-            paymentMethod
-                ? paymentMethod.value
-                : "cash",
-
-        items:
-            cart.map(item => ({
-                productId:
-                    item.productId,
-
-                barcode:
-                    item.barcode,
-
-                name:
-                    item.name,
-
-                price:
-                    Number(item.price),
-
-                qty:
-                    Number(item.qty),
-
-                discount:
-                    Number(item.discount) || 0,
-
-                total:
-                    (
-                        Number(item.price) *
-                        Number(item.qty)
-                    ) -
-                    (
-                        Number(item.discount) || 0
-                    )
-            })),
-
-        subtotal:
-            totals.subtotal,
-
-        discount:
-            totals.discount,
-
-        total:
-            totals.grandTotal,
-
-        paid:
-            totals.paid,
-
-        remaining:
-            totals.remaining
-    };
-
-
-    /* =====================================
-       خصم الكمية من المخزن
-       ===================================== */
-
-    cart.forEach(item => {
-
-        const product =
-            products.find(
-                p =>
-                    p.id ===
-                    item.productId
-            );
-
-
-        if (product) {
-
-            product.quantity =
-                (
-                    Number(product.quantity) ||
-                    0
-                ) -
-                Number(item.qty);
-
-
-            if (
-                product.quantity <
-                0
-            ) {
-
-                product.quantity = 0;
-            }
-        }
-    });
-
-
-    saveProducts();
-
-
-    /* =====================================
-       حفظ الفاتورة
-       ===================================== */
-
-    let sales = [];
-
-
-    try {
-
-        const savedSales =
-            localStorage.getItem(
-                SALES_KEY
-            );
-
-
-        sales =
-            savedSales
-                ? JSON.parse(savedSales)
-                : [];
-
-
-        if (!Array.isArray(sales)) {
-            sales = [];
-        }
-
-    } catch {
-
-        sales = [];
-    }
-
-
-    sales.push(sale);
-
-
-    localStorage.setItem(
-        SALES_KEY,
-        JSON.stringify(sales)
-    );
-
-
-    showToast(
-        "تم حفظ الفاتورة وخصم الكمية من المخزن ✓",
-        "success"
-    );
-
-
-    if (printAfterSave) {
-
-        setTimeout(() => {
-
-            printInvoice(sale);
-
-        }, 400);
-
-    }
-
-
-    setTimeout(() => {
-
-        clearSale(false);
-
-    }, 800);
-
-
-    return true;
-}
-
-
-/* =========================================
-   زر الطباعة
-   ========================================= */
-
-if (printSaleButton) {
-
-    printSaleButton.addEventListener(
-        "click",
-        () => {
-
-            saveSale(true);
-
-        }
-    );
-}
-
-
-/* =========================================
-   تنظيف الفاتورة
-   ========================================= */
-
-if (clearSaleButton) {
-
-    clearSaleButton.addEventListener(
-        "click",
-        () => clearSale(true)
-    );
-}
-
-
-function clearSale(
-    askConfirmation = true
-) {
-
-    if (
-        askConfirmation &&
-        cart.length > 0
-    ) {
-
-        const confirmed =
-            confirm(
-                "هل تريد إلغاء الفاتورة الحالية؟"
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-    }
-
-
-    cart = [];
-
-
-    if (customerName) {
-        customerName.value = "";
-    }
-
-
-    if (customerPhone) {
-        customerPhone.value = "";
-    }
-
-
-    if (discountInput) {
-        discountInput.value = 0;
-    }
-
-
-    if (paidInput) {
-        paidInput.value = 0;
-    }
-
-
-    newInvoiceNumber();
-
-    renderCart();
-
-    loadProducts();
-}
-
-
-/* =========================================
-   طباعة الفاتورة
-   ========================================= */
-
-function printInvoice(sale) {
-
-    const printWindow =
-        window.open(
-            "",
-            "_blank",
-            "width=420,height=700"
-        );
-
-
-    if (!printWindow) {
-
-        showToast(
-            "المتصفح منع نافذة الطباعة",
             "error"
         );
 
@@ -1256,417 +555,156 @@ function printInvoice(sale) {
     }
 
 
-    const itemsHtml =
-        sale.items.map(item => `
+    const sale = {
 
-            <tr>
+        invoice:
+            invoiceNumberElement.textContent,
 
-                <td>
-                    ${escapeHtml(
-                        item.name
-                    )}
-                </td>
+        date:
+            new Date().toISOString(),
 
-                <td>
-                    ${item.qty}
-                </td>
+        customer:
+            document.getElementById(
+                "customerName"
+            ).value.trim(),
 
-                <td>
-                    ${formatMoney(
-                        item.price
-                    )}
-                </td>
+        phone:
+            document.getElementById(
+                "customerPhone"
+            ).value.trim(),
 
-                <td>
-                    ${formatMoney(
-                        item.total
-                    )}
-                </td>
+        payment:
+            document.getElementById(
+                "paymentMethod"
+            ).value,
 
-            </tr>
+        items:
+            cart,
 
-        `).join("");
+        total:
+            total,
 
+        paid:
+            paid,
 
-    printWindow.document.write(`
+        change:
+            paid - total
+    };
 
-        <!DOCTYPE html>
 
-        <html
-            lang="ar"
-            dir="rtl">
+    /*
+     * حفظ الفاتورة مؤقتًا في المتصفح.
+     * لاحقًا هنربطها بقاعدة بيانات حقيقية.
+     */
 
-        <head>
+    const sales =
+        JSON.parse(
+            localStorage.getItem(
+                "topStoreSales"
+            ) || "[]"
+        );
 
-            <meta charset="UTF-8">
 
-            <title>
-                فاتورة ${sale.invoice}
-            </title>
+    sales.push(sale);
 
-            <style>
 
-                * {
-                    box-sizing: border-box;
-                }
+    localStorage.setItem(
+        "topStoreSales",
+        JSON.stringify(sales)
+    );
 
-                body {
-                    font-family:
-                        Arial,
-                        Tahoma,
-                        sans-serif;
 
-                    margin: 0;
+    showToast(
+        "تم حفظ الفاتورة بنجاح ✓",
+        "success"
+    );
 
-                    padding: 20px;
 
-                    color: #111;
+    setTimeout(() => {
 
-                    direction: rtl;
-                }
+        clearSale();
 
-                .receipt {
-                    max-width: 380px;
-
-                    margin: auto;
-                }
-
-                .store-name {
-                    text-align: center;
-
-                    font-size: 25px;
-
-                    font-weight: 900;
-
-                    margin-bottom: 5px;
-                }
-
-                .store-subtitle {
-                    text-align: center;
-
-                    color: #555;
-
-                    font-size: 12px;
-
-                    margin-bottom: 15px;
-                }
-
-                .line {
-                    border-top:
-                        1px dashed #777;
-
-                    margin: 10px 0;
-                }
-
-                .invoice-info {
-                    font-size: 12px;
-
-                    line-height: 1.8;
-                }
-
-                table {
-                    width: 100%;
-
-                    border-collapse:
-                        collapse;
-
-                    margin-top: 10px;
-
-                    font-size: 11px;
-                }
-
-                th,
-                td {
-                    padding: 7px 3px;
-
-                    border-bottom:
-                        1px solid #ddd;
-
-                    text-align: center;
-                }
-
-                th {
-                    background: #f1f1f1;
-                }
-
-                .totals {
-                    margin-top: 12px;
-
-                    font-size: 13px;
-                }
-
-                .total-row {
-                    display: flex;
-
-                    justify-content:
-                        space-between;
-
-                    padding: 5px 0;
-                }
-
-                .grand {
-                    font-size: 18px;
-
-                    font-weight: 900;
-
-                    border-top:
-                        2px solid #111;
-
-                    padding-top: 8px;
-                }
-
-                .thanks {
-                    text-align: center;
-
-                    margin-top: 20px;
-
-                    font-size: 12px;
-                }
-
-                @media print {
-
-                    body {
-                        padding: 0;
-                    }
-
-                }
-
-            </style>
-
-        </head>
-
-
-        <body>
-
-            <div class="receipt">
-
-                <div class="store-name">
-                    TOP STORE
-                </div>
-
-                <div class="store-subtitle">
-                    فاتورة بيع
-                </div>
-
-
-                <div class="line"></div>
-
-
-                <div class="invoice-info">
-
-                    <div>
-                        رقم الفاتورة:
-                        ${escapeHtml(
-                            sale.invoice
-                        )}
-                    </div>
-
-                    <div>
-                        التاريخ:
-                        ${new Date(
-                            sale.date
-                        ).toLocaleString(
-                            "ar-EG"
-                        )}
-                    </div>
-
-                    ${
-                        sale.customerName
-                        ? `
-                            <div>
-                                العميل:
-                                ${escapeHtml(
-                                    sale.customerName
-                                )}
-                            </div>
-                        `
-                        : ""
-                    }
-
-                    ${
-                        sale.customerPhone
-                        ? `
-                            <div>
-                                الهاتف:
-                                ${escapeHtml(
-                                    sale.customerPhone
-                                )}
-                            </div>
-                        `
-                        : ""
-                    }
-
-                </div>
-
-
-                <div class="line"></div>
-
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                المنتج
-                            </th>
-
-                            <th>
-                                ك
-                            </th>
-
-                            <th>
-                                السعر
-                            </th>
-
-                            <th>
-                                الإجمالي
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                        ${itemsHtml}
-
-                    </tbody>
-
-                </table>
-
-
-                <div class="totals">
-
-                    <div class="total-row">
-
-                        <span>
-                            قبل الخصم
-                        </span>
-
-                        <strong>
-                            ${formatMoney(
-                                sale.subtotal
-                            )}
-                            ج.م
-                        </strong>
-
-                    </div>
-
-
-                    <div class="total-row">
-
-                        <span>
-                            الخصم
-                        </span>
-
-                        <strong>
-                            ${formatMoney(
-                                sale.discount
-                            )}
-                            ج.م
-                        </strong>
-
-                    </div>
-
-
-                    <div
-                        class="total-row grand">
-
-                        <span>
-                            الإجمالي
-                        </span>
-
-                        <strong>
-                            ${formatMoney(
-                                sale.total
-                            )}
-                            ج.م
-                        </strong>
-
-                    </div>
-
-
-                    <div class="total-row">
-
-                        <span>
-                            المدفوع
-                        </span>
-
-                        <strong>
-                            ${formatMoney(
-                                sale.paid
-                            )}
-                            ج.م
-                        </strong>
-
-                    </div>
-
-
-                    <div class="total-row">
-
-                        <span>
-                            الباقي
-                        </span>
-
-                        <strong>
-                            ${formatMoney(
-                                Math.max(
-                                    0,
-                                    sale.paid -
-                                    sale.total
-                                )
-                            )}
-                            ج.م
-                        </strong>
-
-                    </div>
-
-                </div>
-
-
-                <div class="line"></div>
-
-
-                <div class="thanks">
-                    شكرًا لتعاملكم مع TOP STORE ❤️
-                </div>
-
-            </div>
-
-
-            <script>
-
-                window.onload = function() {
-
-                    window.print();
-
-                };
-
-            <\/script>
-
-        </body>
-
-        </html>
-
-    `);
-
-
-    printWindow.document.close();
+    }, 700);
 }
 
 
 /* =========================================
-   أدوات
+   Clear Sale
+   ========================================= */
+
+clearSaleButton.addEventListener(
+    "click",
+    clearSale
+);
+
+
+function clearSale() {
+
+    if (cart.length > 0) {
+
+        const confirmClear =
+            confirm(
+                "هل تريد إلغاء الفاتورة الحالية؟"
+            );
+
+        if (!confirmClear) {
+            return;
+        }
+    }
+
+
+    cart = [];
+
+    document.getElementById(
+        "customerName"
+    ).value = "";
+
+    document.getElementById(
+        "customerPhone"
+    ).value = "";
+
+    discountInput.value = 0;
+
+    paidInput.value = 0;
+
+    invoiceNumberElement.textContent =
+        generateInvoiceNumber();
+
+    renderCart();
+}
+
+
+/* =========================================
+   Print
+   ========================================= */
+
+printSaleButton.addEventListener(
+    "click",
+    function () {
+
+        if (cart.length === 0) {
+
+            showToast(
+                "أضف منتجات أولاً",
+                "error"
+            );
+
+            return;
+        }
+
+
+        window.print();
+    }
+);
+
+
+/* =========================================
+   Helpers
    ========================================= */
 
 function formatMoney(value) {
 
-    return Number(
-        value || 0
-    ).toLocaleString(
+    return Number(value).toLocaleString(
         "ar-EG",
         {
             minimumFractionDigits: 2,
@@ -1678,36 +716,17 @@ function formatMoney(value) {
 
 function escapeHtml(value) {
 
-    return String(value ?? "")
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 
 /* =========================================
-   تشغيل الصفحة
+   Start
    ========================================= */
-
-loadProducts();
-
-newInvoiceNumber();
 
 renderCart();

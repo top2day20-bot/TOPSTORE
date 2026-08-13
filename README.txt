@@ -1,24 +1,20 @@
-نسخة الصلاحيات V2
+TOP STORE - إصلاح صفحات المبيعات والمخزن والمرتجع والصيانة
 
-استبدل:
+تم تعديل HTML فقط لإضافة permissions.js قبل JavaScript الخاص بكل صفحة.
+تم إزالة auth.js من maintenance.html لأنه كان نظام حماية منفصلًا وقد يسبب تعارضًا.
+
+الملفات:
+sales.html + sales.js
+products.html + products.js
+returns.html + returns.js
+maintenance.html + maintenance.js
 permissions.js
-users.html
-users.js
 
-مهم جدًا:
-كل صفحة محمية يجب أن تحتوي قبل ملفها الخاص:
-<script src="permissions.js"></script>
+مهم:
+- لا تغيّر ملفات JS الأربعة الآن.
+- ارفع permissions.js مع الملفات.
+- كل صفحة الآن تفحص صلاحيتها عند فتحها.
+- الموظف لا يحصل على صلاحيات إضافية بمجرد دخوله صفحة المبيعات/المنتجات/المرتجع/الصيانة.
 
-مثال sales.html:
-<script src="permissions.js"></script>
-<script src="sales.js"></script>
-
-المدير:
-admin
-
-أي مستخدم غير admin يعامل كموظف، ولا يأخذ صلاحيات المدير تلقائيًا.
-
-تنبيه أمني:
-GitHub Pages + localStorage لا يوفر حماية حقيقية ضد شخص يعبث من DevTools.
-هذه النسخة تصلح لمنع الوصول العادي داخل الواجهة.
-للحماية الحقيقية من التلاعب نحتاج Backend وقاعدة بيانات.
+تنبيه:
+لأن المشروع يعمل Front-end فقط، هذه حماية للواجهة وليست حماية أمنية حقيقية ضد تعديل localStorage من DevTools.
