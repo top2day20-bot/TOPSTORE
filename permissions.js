@@ -1,46 +1,14 @@
 /* =========================================================
-   TOP STORE - نظام الصلاحيات الموحد
-   استبدل permissions.js القديم بهذا الملف
+   TOP STORE - permissions.js
+   نظام الصلاحيات المركزي
 ========================================================= */
 
 "use strict";
 
-const TS = {
-    currentKeys: [
-        "topStoreCurrentUser",
-        "currentUser",
-        "loggedInUser",
-        "topstore_current_user",
-        "user"
-    ],
-    usersKey: "topStoreUsers"
-};
+const TS_USER_KEY = "TOPSTORE_CURRENT_USER";
+const TS_USERS_KEY = "TOPSTORE_USERS";
 
-const DEFAULT_EMPLOYEE_PERMISSIONS = {
-    dashboard: true,
-    sales: true,
-    products: true,
-    returns: true,
-    maintenance: true,
-    accounts: false,
-    expenses: false,
-    reports: false,
-    users: false
-};
-
-const ALL_PERMISSIONS = {
-    dashboard: true,
-    sales: true,
-    products: true,
-    returns: true,
-    maintenance: true,
-    accounts: true,
-    expenses: true,
-    reports: true,
-    users: true
-};
-
-const PAGE_PERMISSION = {
+const TS_PAGES = {
     "dashboard.html": "dashboard",
     "sales.html": "sales",
     "products.html": "products",
@@ -52,248 +20,291 @@ const PAGE_PERMISSION = {
     "users.html": "users"
 };
 
-function tsReadJSON(key) {
+const TS_DEFAULT_EMPLOYEE = {
+    dashboard: true,
+    sales: true,
+    products: true,
+    returns: true,
+    maintenance: true,
+    accounts: false,
+    expenses: false,
+    reports: false,
+    users: false
+};
+
+const TS_ADMIN_PERMISSIONS = {
+    dashboard: true,
+    sales: true,
+    products: true,
+    returns: true,
+    maintenance: true,
+    accounts: true,
+    expenses: true,
+    reports: true,
+    users: true
+};
+
+function tsJsonGet(key, fallback) {
     try {
         const value = localStorage.getItem(key);
-        return value ? JSON.parse(value) : null;
-    } catch (e) {
-        return null;
+        if (!value) return fallback;
+        const data = JSON.parse(value);
+        return data ?? fallback;
+    } catch {
+        return fallback;
     }
 }
 
 function tsGetCurrentUser() {
-    for (const key of TS.currentKeys) {
-        const value = tsReadJSON(key);
-        if (value && typeof value === "object") return value;
-    }
-
-    // دعم أنظمة الدخول القديمة التي تحفظ username فقط
-    const username =
-        localStorage.getItem("username") ||
-        localStorage.getItem("currentUsername") ||
-        localStorage.getItem("loggedInUsername");
-
-    if (username) {
-        return { username };
-    }
-
-    return null;
+    return tsJsonGet(TS_USER_KEY, null);
 }
 
-function tsNormalizeRole(user) {
-    if (!user) return null;
-
-    const username = String(
-        user.username || user.userName || user.name || ""
-    ).trim().toLowerCase();
-
-    if (username === "admin") return "admin";
-
-    const role = String(
-        user.role ||
-        user.type ||
-        user.userRole ||
-        user.permissionRole ||
-        "employee"
-    ).trim().toLowerCase();
-
-    if ([
-        "admin", "administrator", "manager",
-        "مدير", "المدير"
-    ].includes(role)) {
-        return "admin";
+function tsSetCurrentUser(user) {
+    if (!user) {
+        localStorage.removeItem(TS_USER_KEY);
+        return;
     }
 
-    return "employee";
+    localStorage.setItem(TS_USER_KEY, JSON.stringify(user));
 }
 
 function tsGetUsers() {
-    const users = tsReadJSON(TS.usersKey);
-    return Array.isArray(users) ? users : [];
+    let users = tsJsonGet(TS_USERS_KEY, []);
+
+    if (!Array.isArray(users)) {
+        users = [];
+    }
+
+    return users;
 }
 
-function tsFindStoredUser(current) {
-    if (!current) return null;
+function tsSaveUsers(users) {
+    localStorage.setItem(TS_USERS_KEY, JSON.stringify(users));
+}
 
-    const users = tsGetUsers();
+function tsIsAdmin(user) {
+    if (!user) return false;
 
     const username = String(
-        current.username ||
-        current.userName ||
-        current.name ||
-        ""
+        user.username || user.userName || ""
     ).trim().toLowerCase();
 
-    if (!username) return current;
+    const role = String(
+        user.role || ""
+    ).trim().toLowerCase();
 
-    return users.find(u =>
-        String(
-            u.username || u.userName || u.name || ""
-        ).trim().toLowerCase() === username
-    ) || current;
+    return username === "admin" ||
+           role === "admin" ||
+           role === "manager" ||
+           role === "مدير" ||
+           role === "المدير";
 }
 
-function tsGetPermissions(user) {
+function tsGetPermissions(user = tsGetCurrentUser()) {
     if (!user) return {};
 
-    const role = tsNormalizeRole(user);
-
-    if (role === "admin") return { ...ALL_PERMISSIONS };
-
-    const stored = tsFindStoredUser(user);
-
-    // لو المستخدم عنده permissions محفوظة من صفحة المستخدمين
-    if (
-        stored &&
-        stored.permissions &&
-        typeof stored.permissions === "object"
-    ) {
-        return {
-            ...DEFAULT_EMPLOYEE_PERMISSIONS,
-            ...stored.permissions
-        };
+    if (tsIsAdmin(user)) {
+        return { ...TS_ADMIN_PERMISSIONS };
     }
 
-    // دعم أسماء مفاتيح قديمة
-    if (
-        stored &&
-        stored.pagePermissions &&
-        typeof stored.pagePermissions === "object"
-    ) {
-        return {
-            ...DEFAULT_EMPLOYEE_PERMISSIONS,
-            ...stored.pagePermissions
-        };
-    }
-
-    return { ...DEFAULT_EMPLOYEE_PERMISSIONS };
+    return {
+        ...TS_DEFAULT_EMPLOYEE,
+        ...(user.permissions || {})
+    };
 }
 
 function tsHasPermission(permission) {
     const user = tsGetCurrentUser();
+
     if (!user) return false;
 
     if (
         user.active === false ||
-        user.active === "false" ||
         user.status === "inactive"
-    ) return false;
+    ) {
+        return false;
+    }
 
     return tsGetPermissions(user)[permission] === true;
 }
 
-function tsLogout() {
-    TS.currentKeys.forEach(key => localStorage.removeItem(key));
-    localStorage.removeItem("username");
-    localStorage.removeItem("currentUsername");
-    localStorage.removeItem("loggedInUsername");
-    sessionStorage.clear();
-    window.location.href = "index.html";
+function tsPagePermission() {
+    const file =
+        location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+    return TS_PAGES[file] || null;
 }
 
-function tsProtectPage() {
+function tsProtectCurrentPage() {
     const user = tsGetCurrentUser();
 
     if (!user) {
-        window.location.href = "index.html";
+        location.replace("index.html");
         return false;
     }
 
-    if (
-        user.active === false ||
-        user.active === "false" ||
-        user.status === "inactive"
-    ) {
-        alert("هذا الحساب متوقف. تواصل مع المدير.");
-        tsLogout();
+    const permission = tsPagePermission();
+
+    if (!permission) {
+        return true;
+    }
+
+    if (!tsHasPermission(permission)) {
+        alert("ليس لديك صلاحية للدخول إلى هذه الصفحة.");
+        location.replace("dashboard.html");
         return false;
     }
 
-    const page = (
-        window.location.pathname.split("/").pop() ||
-        "dashboard.html"
-    ).toLowerCase();
-
-    const permission = PAGE_PERMISSION[page];
-
-    if (!permission) return true;
-
-    if (tsHasPermission(permission)) return true;
-
-    alert("ليس لديك صلاحية للدخول إلى هذه الصفحة.");
-    window.location.href = "dashboard.html";
-    return false;
+    return true;
 }
 
-function tsApplyMenu() {
-    document.querySelectorAll(".menu-item, a[href]").forEach(el => {
-        const href = el.getAttribute("href");
-        if (!href || !href.toLowerCase().endsWith(".html")) return;
+function tsApplyMenuPermissions() {
+    document.querySelectorAll("a[href]").forEach(link => {
+        const href = link.getAttribute("href");
 
-        const page = href.split("/").pop().toLowerCase();
-        const permission = PAGE_PERMISSION[page];
+        if (!href || !href.toLowerCase().endsWith(".html")) {
+            return;
+        }
 
-        if (permission && !tsHasPermission(permission)) {
-            el.style.display = "none";
+        const page =
+            href.split("/").pop().toLowerCase();
+
+        const permission = TS_PAGES[page];
+
+        if (
+            permission &&
+            !tsHasPermission(permission)
+        ) {
+            link.style.display = "none";
         }
     });
 }
 
-function tsDisplayUser() {
+function tsUpdateUserInfo() {
     const user = tsGetCurrentUser();
+
     if (!user) return;
 
     const name =
-        user.fullName ||
-        user.displayName ||
-        user.username ||
-        user.userName ||
         user.name ||
+        user.fullName ||
+        user.username ||
         "المستخدم";
 
-    const role = tsNormalizeRole(user);
+    const role =
+        tsIsAdmin(user)
+            ? "المدير"
+            : "الموظف";
 
-    const nameEl = document.getElementById("usernameDisplay");
-    const roleEl = document.getElementById("roleDisplay");
-    const avatar = document.getElementById("userAvatar") ||
-                   document.querySelector(".user-avatar");
+    const nameElements = [
+        document.getElementById("usernameDisplay"),
+        document.getElementById("currentUsername")
+    ];
 
-    if (nameEl) nameEl.textContent = name;
-    if (roleEl) roleEl.textContent = role === "admin" ? "المدير" : "الموظف";
-    if (avatar) avatar.textContent = String(name).charAt(0).toUpperCase();
-}
+    nameElements.forEach(el => {
+        if (el) el.textContent = name;
+    });
 
-function tsSetupLogout() {
-    document.querySelectorAll(
-        "#logoutButton, .logout-button, [data-logout]"
-    ).forEach(button => {
-        if (button.dataset.tsLogoutReady) return;
+    const roleElements = [
+        document.getElementById("roleDisplay"),
+        document.getElementById("currentRole")
+    ];
 
-        button.dataset.tsLogoutReady = "1";
-        button.addEventListener("click", e => {
-            e.preventDefault();
-            if (confirm("هل تريد تسجيل الخروج؟")) tsLogout();
-        });
+    roleElements.forEach(el => {
+        if (el) el.textContent = role;
     });
 }
 
-function tsInitPermissions() {
-    if (!tsProtectPage()) return;
-    tsApplyMenu();
-    tsDisplayUser();
-    tsSetupLogout();
+function tsLogout() {
+    localStorage.removeItem(TS_USER_KEY);
+
+    // دعم مفاتيح الدخول القديمة بدون التأثير على المستخدمين
+    [
+        "topStoreCurrentUser",
+        "currentUser",
+        "loggedInUser",
+        "topstore_current_user",
+        "loggedInUsername",
+        "currentUsername",
+        "username"
+    ].forEach(key => {
+        localStorage.removeItem(key);
+    });
+
+    sessionStorage.clear();
+
+    location.replace("index.html");
+}
+
+function tsInitializePermissions() {
+    const user = tsGetCurrentUser();
+
+    if (!user) {
+        location.replace("index.html");
+        return;
+    }
+
+    if (
+        user.active === false ||
+        user.status === "inactive"
+    ) {
+        alert("هذا الحساب متوقف.");
+        tsLogout();
+        return;
+    }
+
+    if (!tsProtectCurrentPage()) {
+        return;
+    }
+
+    tsApplyMenuPermissions();
+    tsUpdateUserInfo();
+
+    document
+        .querySelectorAll(
+            "#logoutButton, .logout-button, [data-logout]"
+        )
+        .forEach(button => {
+            if (button.dataset.tsReady === "1") return;
+
+            button.dataset.tsReady = "1";
+
+            button.addEventListener(
+                "click",
+                event => {
+                    event.preventDefault();
+
+                    if (
+                        confirm(
+                            "هل تريد تسجيل الخروج؟"
+                        )
+                    ) {
+                        tsLogout();
+                    }
+                }
+            );
+        });
 }
 
 window.TOPSTORE = {
     getCurrentUser: tsGetCurrentUser,
-    getRole: () => tsNormalizeRole(tsGetCurrentUser()),
-    getPermissions: () => tsGetPermissions(tsGetCurrentUser()),
+    setCurrentUser: tsSetCurrentUser,
+    getUsers: tsGetUsers,
+    saveUsers: tsSaveUsers,
+    getPermissions: tsGetPermissions,
     hasPermission: tsHasPermission,
+    isAdmin: () => tsIsAdmin(),
     logout: tsLogout
 };
 
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", tsInitPermissions);
+    document.addEventListener(
+        "DOMContentLoaded",
+        tsInitializePermissions
+    );
 } else {
-    tsInitPermissions();
+    tsInitializePermissions();
 }
