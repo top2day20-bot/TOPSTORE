@@ -77,7 +77,7 @@ function isAdmin(u=currentUser()){
 
   // المدير فقط هو الحساب admin.
   // لا نعتمد على وجود صلاحية users أو accounts لتحديد المدير.
-  return u.username.toLowerCase()==="admin";
+  return u.username.toLowerCase()==="elalmy";
 }
 
 function permissions(u=currentUser()){

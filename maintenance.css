@@ -1,1 +1,77 @@
-*{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#182230;font-family:Arial,Tahoma,sans-serif}.app{min-height:100vh}header{background:#fff;padding:18px 25px;display:flex;justify-content:space-between;align-items:center;gap:20px;box-shadow:0 5px 20px #0000000d}header h1{margin:10px 0 4px}header p{margin:0;color:#6b7280}.user{display:flex;align-items:center;gap:10px}.user span{color:#667085}button{border:0;border-radius:10px;padding:11px 16px;cursor:pointer;font-weight:bold;background:#e9eef5;color:#182230}.primary{background:#159bd7;color:white}.app main{max-width:1250px;margin:auto;padding:25px}.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:22px;box-shadow:0 8px 30px #0000000d}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}label{font-weight:bold}input,select,textarea{display:block;width:100%;margin-top:7px;padding:12px;border:1px solid #d8dee9;border-radius:10px;font:inherit}textarea{min-height:90px;resize:vertical}.full{grid-column:1/-1}.actions{display:flex;gap:10px;margin-top:18px}.title{display:flex;justify-content:space-between;align-items:center}.title b{background:#eaf6ff;color:#1684c4;padding:9px 14px;border-radius:10px}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px solid #edf0f4;text-align:right;white-space:nowrap}th{background:#f8fafc}.delete{background:#ef4444;color:white}.status{background:#e9f7ef;color:#198754;padding:5px 9px;border-radius:20px}.empty{text-align:center;padding:35px;color:#777}@media(max-width:700px){header{flex-direction:column;align-items:flex-start}.user{width:100%;justify-content:space-between}.grid{grid-template-columns:1fr}.full{grid-column:auto}.app main{padding:12px}.card{padding:15px}}
+
+/* TOP STORE - Maintenance Premium UI */
+:root{
+  --ts-primary:#8b5cf6;
+  --ts-primary-2:#a855f7;
+  --ts-bg:#f5f7fb;
+  --ts-card:#ffffff;
+  --ts-text:#172033;
+  --ts-muted:#6b7280;
+  --ts-border:#e8ebf1;
+  --ts-shadow:0 12px 35px rgba(31,41,55,.08);
+  --ts-radius:18px;
+}
+body{background:var(--ts-bg)!important;color:var(--ts-text);font-family:Tahoma,Arial,sans-serif}
+.main{min-width:0}
+.content{max-width:1500px;margin:auto;padding:22px}
+.header{background:rgba(255,255,255,.94)!important;backdrop-filter:blur(12px);border-bottom:1px solid var(--ts-border)!important}
+.header-title h1{font-weight:800}
+.header-title p{color:var(--ts-muted)}
+.user-avatar{background:linear-gradient(135deg,var(--ts-primary),var(--ts-primary-2))!important;color:#fff!important}
+.welcome-card,.stat-card,.section-header,.empty-card,.maintenance-card,.card,
+#repairModal .modal-content{
+  border-radius:var(--ts-radius)!important;
+  box-shadow:var(--ts-shadow)!important;
+}
+button,.btn,.primary-btn,.add-btn{
+  transition:.2s ease;
+}
+button:hover,.btn:hover,.primary-btn:hover,.add-btn:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.03);
+}
+input,select,textarea{
+  border:1px solid var(--ts-border)!important;
+  border-radius:12px!important;
+  background:#fff!important;
+  outline:none!important;
+  transition:.2s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--ts-primary)!important;
+  box-shadow:0 0 0 3px rgba(139,92,246,.12)!important;
+}
+.status-filter{
+  border:1px solid var(--ts-border)!important;
+  background:#fff!important;
+  border-radius:10px!important;
+}
+.status-filter.active{
+  background:var(--ts-primary)!important;
+  color:#fff!important;
+  border-color:var(--ts-primary)!important;
+}
+table{border-collapse:separate!important;border-spacing:0 8px!important}
+thead th{color:var(--ts-muted)!important;font-size:13px}
+tbody tr{
+  background:#fff!important;
+  box-shadow:0 5px 18px rgba(31,41,55,.05);
+}
+tbody td{border:0!important}
+tbody tr td:first-child{border-radius:0 12px 12px 0}
+tbody tr td:last-child{border-radius:12px 0 0 12px}
+.badge,.status-badge{
+  border-radius:999px!important;
+  padding:6px 10px!important;
+  font-weight:700!important;
+}
+@media(max-width:900px){
+  .content{padding:14px}
+  .header{padding:12px}
+}
+@media(max-width:650px){
+  .content{padding:10px}
+  table{min-width:760px}
+  .table-container,.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  input,select,textarea{font-size:16px}
+}

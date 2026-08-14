@@ -5,24 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TOP STORE | المستخدمين والصلاحيات</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f4f7fb;font-family:Arial,Tahoma,sans-serif;color:#172033}
+*{box-sizing:border-box}body{margin:0;background:#f4f7fb;font-family:Tahoma,Arial,sans-serif;color:#172033}
 .page{max-width:1150px;margin:auto;padding:18px}.card{background:#fff;border-radius:18px;padding:20px;margin-bottom:18px;box-shadow:0 8px 28px #0000000d}
 .head{display:flex;justify-content:space-between;align-items:center;gap:15px}.head h1{margin:0 0 5px}.head p{margin:0;color:#687386}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}label{font-weight:bold}input{width:100%;padding:12px;margin-top:6px;border:1px solid #d7dee8;border-radius:10px}
 .permissions{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.permissions label{font-weight:normal;background:#f7f9fb;padding:11px;border-radius:10px}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{border:0;border-radius:10px;padding:10px 15px;cursor:pointer;font-weight:bold;background:#e9eef5}.primary{background:#159bd7;color:#fff}.danger{background:#ef4444;color:#fff}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}button{border:0;border-radius:10px;padding:10px 15px;cursor:pointer;font-weight:bold;background:#e9eef5}.primary{background:#8b5cf6;color:#fff}.danger{background:#ef4444;color:#fff}
 .table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{padding:11px;text-align:right;border-bottom:1px solid #edf0f4;white-space:nowrap}th{background:#f8fafc}
 @media(max-width:700px){.grid,.permissions{grid-template-columns:1fr}.head{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
 <body>
 <div class="page">
-
 <section class="card head">
-<div><h1>👥 المستخدمين والصلاحيات</h1><p>المدير فقط يستطيع إدارة صلاحيات الموظفين</p></div>
-<div><strong id="usernameDisplay">المستخدم</strong> - <span id="roleDisplay">المدير</span></div>
+<div><h1>👥 المستخدمين والصلاحيات</h1><p>إدارة الموظفين وصلاحياتهم</p></div>
+<div><strong id="usernameDisplay">Elalmy</strong> - <span id="roleDisplay">المدير</span></div>
 </section>
-
 <section class="card">
 <h2 id="formTitle">إضافة موظف جديد</h2>
 <form id="userForm">
@@ -32,7 +30,6 @@
 <label>كلمة المرور<input id="password" type="password" required></label>
 <label>تأكيد كلمة المرور<input id="passwordConfirm" type="password" required></label>
 </div>
-
 <h3>صلاحيات الموظف</h3>
 <div class="permissions">
 <label><input data-permission="sales" type="checkbox" checked> المبيعات</label>
@@ -44,7 +41,6 @@
 <label><input data-permission="reports" type="checkbox"> التقارير</label>
 <label><input data-permission="users" type="checkbox"> المستخدمين</label>
 </div>
-
 <div class="actions">
 <button class="primary" type="submit">💾 حفظ</button>
 <button id="cancelEdit" type="button">إلغاء</button>
@@ -53,12 +49,10 @@
 </div>
 </form>
 </section>
-
 <section class="card">
 <h2>المستخدمون</h2>
 <div class="table"><table><thead><tr><th>المستخدم</th><th>الاسم</th><th>الدور</th><th>الصلاحيات</th><th>الحالة</th><th>إجراء</th></tr></thead><tbody id="usersTable"></tbody></table></div>
 </section>
-
 </div>
 <script src="permissions.js"></script>
 <script src="users.js"></script>
