@@ -1,3 +1,4 @@
+\n// ===== TOP STORE permission guard =====\nif (window.TOPSTORE_PERMISSIONS && !window.TOPSTORE_PERMISSIONS.has("accounts")) {\n    location.replace("dashboard.html");\n    throw new Error("TOP STORE: permission denied");\n}\n
 "use strict";
 
 /*
